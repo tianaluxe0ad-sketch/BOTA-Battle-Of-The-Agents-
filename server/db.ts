@@ -59,7 +59,7 @@ if (requireRemoteDb && DB_IDENTITY.isLocal) {
 }
 
 // Session Pooler configuration for Supabase
-// This works with IPv4 networks (like Codespaces)
+// Optimized for Vercel Serverless Functions
 export const pool = new Pool({
   connectionString: databaseUrl,
   ssl: {
@@ -68,7 +68,8 @@ export const pool = new Pool({
   // Keep bounded but allow concurrency; max=1 can bottleneck challenge feed queries.
   max: poolMax,
   connectionTimeoutMillis: 10000,
-  idleTimeoutMillis: 0,
+  idleTimeoutMillis: 5000, // Close idle connections after 5s so Vercel doesn't freeze them
+  allowExitOnIdle: true, // Prevent the event loop from hanging on Vercel
 });
 
 pool.on('connect', () => {
