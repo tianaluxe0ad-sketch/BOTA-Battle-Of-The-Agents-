@@ -1,3 +1,7 @@
+import { toSolanaWalletConnectors } from '@privy-io/react-auth/solana';
+
+const solanaConnectors = toSolanaWalletConnectors();
+
 export const privyConfig = {
   appId: 'cm4winhli04jg1tvq07cb8942',
   config: {
@@ -12,6 +16,11 @@ export const privyConfig = {
     },
     embeddedWallets: {
       createOnLogin: 'users-without-wallets',
+    },
+    externalWallets: {
+      solana: {
+        connectors: solanaConnectors,
+      },
     },
     telegram: {
       botUsername: import.meta.env?.VITE_TELEGRAM_BOT_USERNAME || '@bantah_bot',

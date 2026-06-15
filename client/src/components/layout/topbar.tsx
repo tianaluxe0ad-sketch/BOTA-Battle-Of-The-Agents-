@@ -13,6 +13,7 @@ import { arenaAgentAvatar } from '@/lib/arenaAgentAvatars'
 import { arenaLabelForBattleWithSources } from '@/lib/bantahbro/arenaVenues'
 import { getBattleTimeRemainingSeconds } from '@/lib/bantahbro/battleTiming'
 import { useTheme } from '@/lib/theme-provider'
+import { useNetworkState } from '@/stores/useNetworkState'
 import { useState, useRef, useEffect, type CSSProperties } from 'react'
 import MobileDrawer from './mobile-drawer'
 import type { AppSection, BantahTool } from '@/app/page'
@@ -373,6 +374,7 @@ const PARTICIPATION_SLIDES = [
 
 export default function TopBar({ onNavigate, onOpenBattle, activeSection, activeTool, onToolSelect }: TopBarProps) {
   const { theme, toggleTheme } = useTheme()
+  const { activeNetwork, setNetwork } = useNetworkState()
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [participationOpen, setParticipationOpen] = useState(false)
   const [participationSlide, setParticipationSlide] = useState(0)
@@ -690,6 +692,13 @@ export default function TopBar({ onNavigate, onOpenBattle, activeSection, active
               title={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
             >
               <span className="text-xl">{theme === 'dark' ? '☀️' : '🌙'}</span>
+            </button>
+            <button
+              onClick={() => setNetwork(activeNetwork === 'evm' ? 'solana' : 'evm')}
+              className="hidden sm:flex items-center gap-1.5 px-2 py-1.5 hover:bg-sidebar-accent rounded transition border border-border bg-background/50 shadow-sm"
+              title={`Switch Network (Current: ${activeNetwork.toUpperCase()})`}
+            >
+              <span className="text-sm">{activeNetwork === 'evm' ? '🔵 Base' : '🟣 Solana'}</span>
             </button>
             <button
               onClick={() => onNavigate?.('profile')}
