@@ -130,6 +130,7 @@
     "express-fileupload": "^1.5.2",
     "express-session": "^1.18.1",
     "framer-motion": "^11.13.1",
+    "graphql": "^17.0.0",
     "grid-engine": "^2.52.1",
     "input": "^1.0.1",
     "input-otp": "^1.4.2",
