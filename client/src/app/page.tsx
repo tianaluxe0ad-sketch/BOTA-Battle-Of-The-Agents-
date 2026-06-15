@@ -33,11 +33,7 @@ const ChallengeRightSidebar = lazy(() =>
 const ARENA_PREVIEW_EVENT = 'bantahbro:arena-preview-change';
 
 function BotaSectionFallback() {
-  return (
-    <div className="flex flex-1 items-center justify-center bg-background text-foreground">
-      <div className="h-8 w-8 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-    </div>
-  );
+  return null;
 }
 
 export type AppSection =

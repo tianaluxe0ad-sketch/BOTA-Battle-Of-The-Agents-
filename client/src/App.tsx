@@ -163,14 +163,7 @@ function isBantahBroPath(pathname: string) {
 }
 
 function DefaultRouteFallback() {
-  return (
-    <div className="min-h-[40vh] flex items-center justify-center">
-      <div className="text-center">
-        <div className="w-7 h-7 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-3"></div>
-        <p className="text-xs text-slate-500 dark:text-slate-400">Loading page...</p>
-      </div>
-    </div>
-  );
+  return null;
 }
 
 function AdminEngineRedirect() {
@@ -346,14 +339,7 @@ function AppRouter() {
 
   // Keep BOTA fast: render its public shell while auth finishes in the background.
   if (isLoading && !isBantahBroRoute) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
-        <div className="text-center">
-          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
-          <p className="text-slate-600 dark:text-slate-400">Loading...</p>
-        </div>
-      </div>
-    );
+    return null;
   }
 
   return (
