@@ -32,6 +32,7 @@ import { getBotaDerivativeFighter } from '@shared/botaDerivativeFighter'
 import { BotaInventoryBrowser } from '@/components/BotaInventoryBrowser'
 import { BotaPreBattleLoadout } from '@/components/BotaPreBattleLoadout'
 import { useBotaInventory } from '@/hooks/useBotaInventory'
+import ChallengePage from '@/components/pages/challenge-page'
 type AgentSourceKind = FighterSourceKind
 
 type FighterProfilesFeed = {
@@ -390,9 +391,10 @@ async function fetchBotaAgentDirectory(): Promise<AgentDirectory> {
 }
 
 export default function AgentsPage() {
-  const queryClient = useQueryClient()
-  const { isAuthenticated, isLoading: authLoading, login, user } = useAuth()
+  const { user, login, isAuthenticated } = useAuth()
   const { toast } = useToast()
+  const queryClient = useQueryClient()
+  const [activeTab, setActiveTab] = useState<'directory' | 'loadout' | 'challenges'>('directory')
   const [challengeTarget, setChallengeTarget] = useState<DirectoryAgent | null>(null)
   const [challengeForm, setChallengeForm] = useState<ChallengeForm | null>(null)
   const [showPreBattle, setShowPreBattle] = useState(false)
@@ -405,7 +407,6 @@ export default function AgentsPage() {
     refetchInterval: 30_000,
   })
 
-  const [activeTab, setActiveTab] = useState<'directory' | 'loadout'>('directory')
   const viewerWallet = typeof (user as any)?.walletAddress === 'string' ? (user as any).walletAddress : null
   const { tools: inventoryTools, equipTool, unequipTool } = useBotaInventory(viewerWallet)
 
@@ -582,6 +583,13 @@ export default function AgentsPage() {
               >
                 My Loadout
               </button>
+              <button
+                type="button"
+                onClick={() => setActiveTab('challenges')}
+                className={`px-3 py-1 rounded text-xs font-bold ${activeTab === 'challenges' ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'}`}
+              >
+                Challenges
+              </button>
             </div>
             <a
               href={botaAppHref('/bota/import')}
@@ -594,13 +602,15 @@ export default function AgentsPage() {
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto p-3 space-y-3">
-        {activeTab === 'loadout' ? (
-          <BotaInventoryBrowser 
-            walletAddress={viewerWallet || ''} 
+      {activeTab === 'challenges' ? (
+        <ChallengePage />
+      ) : (
+        <div className="flex-1 overflow-y-auto p-3 space-y-3">
+          {activeTab === 'loadout' ? (
+            <BotaInventoryBrowser 
+              walletAddress={viewerWallet || ''} 
             tools={inventoryTools} 
             onEquip={(toolId) => {
-              // Note: FighterID needs to be selected by the user. Hardcoding generic action for UI.
               equipTool({ inventoryId: toolId, fighterId: 'bota:default', slot: 'primary' });
             }}
             onUnequip={(toolId) => {
@@ -699,7 +709,6 @@ export default function AgentsPage() {
                     <button
                       type="button"
                       onClick={() => openChallengeModal(agent)}
-                      disabled={authLoading}
                       className="inline-flex items-center gap-1 rounded bg-primary px-2 py-1 text-[10px] font-black text-primary-foreground transition hover:opacity-90 disabled:opacity-60"
                     >
                       <Swords size={11} />
@@ -732,10 +741,11 @@ export default function AgentsPage() {
         </>
         )}
       </div>
+      )}
 
-      {challengeTarget && challengeForm ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-2">
-          <div className="max-h-[92vh] w-full max-w-sm overflow-y-auto rounded border border-border bg-card">
+      {challengeTarget && challengeForm && (
+        <Dialog open={!!challengeTarget} onOpenChange={(open) => !open && setChallengeTarget(null)}>
+          <DialogContent className="max-h-[92vh] w-full max-w-sm overflow-y-auto rounded border border-border bg-card p-0">
             <div className="flex items-center justify-between border-b border-border px-3 py-2">
               <div>
                 <div className="text-sm font-black leading-tight text-foreground">Challenge Agent</div>
@@ -876,9 +886,9 @@ export default function AgentsPage() {
               </button>
             </div>
             )}
-          </div>
-        </div>
-      ) : null}
+          </DialogContent>
+        </Dialog>
+      )}
     </div>
   )
 }
