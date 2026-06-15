@@ -8,9 +8,9 @@ interface MobileBottomNavProps {
 }
 
 const tabs: { id: AppSection; label: string; icon: string }[] = [
-  { id: 'challenge', label: 'Challenge', icon: '⚔️' },
   { id: 'agents', label: 'Agents', icon: '🤖' },
   { id: 'battles', label: 'Arena', icon: '🏟️' },
+  { id: 'koth', label: 'KOTH', icon: '👑' },
   { id: 'leaderboard', label: 'Rank', icon: '🏆' },
   { id: 'marketplace', label: 'Market', icon: '🛒' },
   { id: 'import', label: 'Import', icon: '⬇️' },
