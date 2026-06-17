@@ -26,14 +26,10 @@ const DocsPage = lazy(() => import('@/components/pages/docs-page'));
 const MarketplacePage = lazy(() => import('@/components/pages/marketplace-page'));
 const CommunitiesPage = lazy(() => import('@/components/pages/communities-page'));
 const PolymarketBattlePage = lazy(() => import('@/components/pages/polymarket-battle-page'));
-const KingOfTheHillPage = lazy(() => import('@/components/pages/koth-page'));
+const AgentManagementPage = lazy(() => import('@/pages/AgentManagement'));
 const ChallengeRightSidebar = lazy(() =>
   import('@/components/pages/challenge-page').then((module) => ({ default: module.ChallengeRightSidebar })),
 );
-const KothRightSidebar = lazy(() =>
-  import('@/components/pages/koth-page').then((module) => ({ default: module.KothRightSidebar })),
-);
-
 const ARENA_PREVIEW_EVENT = 'bantahbro:arena-preview-change';
 
 function BotaSectionFallback() {
@@ -49,6 +45,7 @@ export type AppSection =
   | 'leaderboard'
   | 'rewards'
   | 'agents'
+  | 'fighters'
   | 'marketplace'
   | 'communities'
   | 'ads'
@@ -59,8 +56,7 @@ export type AppSection =
   | 'launcher'
   | 'profile'
   | 'prediction'
-  | 'prediction-battle'
-  | 'koth';
+  | 'prediction-battle';
 
 export type BantahTool =
   | 'assistant'
@@ -76,7 +72,7 @@ export type BantahTool =
   | 'launcher';
 
 export default function Home({
-  initialSection = 'koth',
+  initialSection = 'battles',
   initialDashboardTab = 'battles',
   initialPredictionBattleId = '',
 }: {
@@ -92,6 +88,7 @@ export default function Home({
   const [predictionBattleId] = useState(initialPredictionBattleId);
   const [activeTool, setActiveTool] = useState<BantahTool>('assistant');
   const [pendingWalletAction, setPendingWalletAction] = useState<BantahBroWalletAction | null>(null);
+  const [kothSubView, setKothSubView] = useState<'koth' | 'arena'>('koth');
 
   const normalizeSection = (section: AppSection): AppSection =>
     section === 'dashboard' ? 'challenge' : section === 'launcher' ? 'import' : section;
@@ -183,6 +180,7 @@ export default function Home({
       sectionParam === 'leaderboard' ||
       sectionParam === 'rewards' ||
       sectionParam === 'agents' ||
+      sectionParam === 'fighters' ||
       sectionParam === 'marketplace' ||
       sectionParam === 'communities' ||
       sectionParam === 'ads' ||
@@ -193,8 +191,7 @@ export default function Home({
       sectionParam === 'launcher' ||
       sectionParam === 'profile' ||
       sectionParam === 'prediction' ||
-      sectionParam === 'prediction-battle' ||
-      sectionParam === 'koth'
+      sectionParam === 'prediction-battle'
     ) {
       setActiveSection(normalizeSection(sectionParam));
     }
@@ -276,10 +273,14 @@ export default function Home({
         );
       case 'polymarket':
         return <PolymarketBattlePage />;
-      case 'koth':
-        return renderWithPanel(<KingOfTheHillPage />, <KothRightSidebar />, 'hidden lg:flex');
       case 'agents':
         return renderWithRightPanel(<AgentsPage />);
+      case 'fighters':
+        return (
+          <div className="flex-1 flex overflow-hidden p-0.5 pb-20 md:pb-0.5">
+            <AgentManagementPage />
+          </div>
+        );
       case 'marketplace':
         return renderWithRightPanel(<MarketplacePage onNavigate={handleNavigate} />);
       case 'communities':
@@ -342,7 +343,7 @@ export default function Home({
       </div>
 
       <div className="flex-1 flex flex-col overflow-hidden">
-        <div className={activeSection === 'battles' ? 'hidden md:block' : 'block'}>
+        <div className="block">
           <TopBar
             onNavigate={handleNavigate}
             onOpenBattle={handleOpenBattle}

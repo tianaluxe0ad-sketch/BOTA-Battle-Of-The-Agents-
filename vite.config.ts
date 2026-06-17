@@ -16,6 +16,7 @@ export default defineConfig({
         ]
       : []),
   ],
+  optimizeDeps: { include: ['@privy-io/react-auth'] },
   resolve: {
     alias: {
       "@": path.resolve(import.meta.dirname, "client", "src"),
@@ -28,6 +29,11 @@ export default defineConfig({
     outDir: path.resolve(import.meta.dirname, "dist/public"),
     emptyOutDir: true,
     rollupOptions: {
+      onwarn: (warning, warn) => {
+        // Suppress pure comment warnings from third‑party modules
+        if (warning.code === 'UNKNOWN_COMMENT') return;
+        warn(warning);
+      },
       output: {
         manualChunks(id) {
           if (!id.includes("node_modules")) return undefined;

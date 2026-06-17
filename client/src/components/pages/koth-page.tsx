@@ -1,7 +1,9 @@
 'use client'
 
 import React, { useState, useEffect, useRef, useMemo } from 'react'
-import { Eye, Flame, MessageSquare, AlertTriangle, Coins, Shield, Swords, Zap, Trophy, Goal, Sparkles, Navigation, X, Loader2, CheckCircle2, XCircle } from 'lucide-react'
+import { Eye, Flame, MessageSquare, Coins, Swords, Zap, Trophy, Navigation, X, CheckCircle2, XCircle } from 'lucide-react'
+import type { AppSection } from '@/app/page'
+import BattlesPage from '@/components/pages/battles-page'
 import { arenaAgentAvatar } from '@/lib/arenaAgentAvatars'
 import { botaFighterProfileArt } from '@/lib/botaCharacterLayer'
 import { formatAgentName } from '@/lib/utils'
@@ -75,7 +77,46 @@ const MOCK_CHAT: ChatMessage[] = [
 
 
 
-export default function KingOfTheHillPage() {
+type KothPageView = 'koth' | 'arena'
+
+interface KingOfTheHillPageProps {
+  onNavigate?: (section: AppSection) => void
+  onViewChange?: (view: KothPageView) => void
+}
+
+function KothViewTabs({
+  activeView,
+  onViewChange,
+}: {
+  activeView: KothPageView
+  onViewChange: (view: KothPageView) => void
+}) {
+  return (
+    <div className="flex shrink-0 items-center gap-1 border-b border-indigo-500/20 bg-[#0f0a18]/95 px-2 py-1.5 backdrop-blur-md">
+      {([
+        { id: 'koth' as const, label: 'King of the Hill', icon: '👑' },
+        { id: 'arena' as const, label: 'Head to Head', icon: '🏟️' },
+      ]).map((tab) => (
+        <button
+          key={tab.id}
+          type="button"
+          onClick={() => onViewChange(tab.id)}
+          className={`flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-[10px] font-black uppercase tracking-wider transition ${
+            activeView === tab.id
+              ? 'bg-indigo-600 text-white shadow-[0_0_12px_rgba(99,102,241,0.45)]'
+              : 'text-white/60 hover:bg-white/10 hover:text-white'
+          }`}
+        >
+          <span aria-hidden>{tab.icon}</span>
+          {tab.label}
+        </button>
+      ))}
+    </div>
+  )
+}
+
+export default function KingOfTheHillPage({ onNavigate, onViewChange }: KingOfTheHillPageProps) {
+  const [activeView, setActiveView] = useState<KothPageView>('koth')
   const [timer, setTimer] = useState(180) // 3 minutes for mock
   const [totalPool, setTotalPool] = useState(120000)
   const [isJoinModalOpen, setIsJoinModalOpen] = useState(false)
@@ -243,11 +284,33 @@ export default function KingOfTheHillPage() {
     }
   }
 
+  const handleViewChange = (view: KothPageView) => {
+    setActiveView(view)
+    onViewChange?.(view)
+  }
+
+  useEffect(() => {
+    onViewChange?.(activeView)
+  }, [activeView, onViewChange])
+
+  if (activeView === 'arena') {
+    return (
+      <div className="bantahbro-next-ui flex h-full min-h-0 w-full flex-col overflow-hidden bg-background">
+        <KothViewTabs activeView={activeView} onViewChange={handleViewChange} />
+        <div className="min-h-0 flex-1 overflow-hidden">
+          <BattlesPage onNavigate={onNavigate} />
+        </div>
+      </div>
+    )
+  }
+
   return (
-    <div className="bantahbro-next-ui flex h-[calc(100vh-3rem)] w-full overflow-hidden bg-[#1e1533] text-white selection:bg-primary/30">
-      
+    <div className="bantahbro-next-ui flex h-full min-h-0 w-full flex-col overflow-hidden bg-[#1e1533] text-white selection:bg-primary/30">
+      <KothViewTabs activeView={activeView} onViewChange={handleViewChange} />
+
+      <div className="flex min-h-0 flex-1 gap-0.5 overflow-hidden p-0.5 pb-20 md:pb-0.5 flex-col md:flex-row">
       {/* Left: Main Gameplay Feed */}
-      <div className="relative flex-1 overflow-hidden bg-[#0d0714]">
+      <div className="relative min-h-0 flex-1 overflow-hidden bg-[#0d0714]">
         
         {/* Arena Map Background */}
         <div 
@@ -589,6 +652,10 @@ export default function KingOfTheHillPage() {
         </div>
       )}
 
+      <div className="hidden lg:flex shrink-0">
+        <KothRightSidebar />
+      </div>
+      </div>
     </div>
   )
 }

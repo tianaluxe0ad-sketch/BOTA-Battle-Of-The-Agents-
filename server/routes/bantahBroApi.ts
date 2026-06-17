@@ -218,7 +218,7 @@ import {
   calculateBattleWatchBantCredit,
 } from "@shared/bantCredit";
 import { bantahBroWalletPrepareRequestSchema } from "@shared/bantahBroWallet";
-import { normalizeEvmAddress, parseWalletAddresses, ONCHAIN_CONFIG, type OnchainTokenSymbol } from "@shared/onchainConfig";
+import { normalizeEvmAddress, parseWalletAddresses, type OnchainTokenSymbol } from "@shared/onchainConfig";
 import { verifyEscrowTransaction } from "../onchainEscrowService";
 
 const router = Router();
@@ -4878,6 +4878,111 @@ Provide a short, entertaining comment or troll the participants. You can act lik
   } catch (error) {
     console.error("Trollbox generation error:", error);
     return res.status(500).json({ message: "Failed to generate trollbox message" });
+  }
+});
+
+// Agent Management Endpoints
+
+// GET /api/bantahbro/my-agents - Get user's agents
+router.get("/my-agents", PrivyAuthMiddleware, async (req: any, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const userAgents = await db
+      .select()
+      .from(agents)
+      .where(eq(agents.ownerId, userId));
+
+    res.json(userAgents);
+  } catch (error) {
+    console.error("Error fetching agents:", error);
+    res.status(500).json({ message: "Failed to fetch agents" });
+  }
+});
+
+// PATCH /api/bantahbro/agents/:agentId - Update agent profile
+router.patch("/agents/:agentId", PrivyAuthMiddleware, async (req: any, res) => {
+  try {
+    const userId = req.user?.id;
+    const agentId = req.params.agentId;
+    const { agentName, avatarUrl, specialty } = req.body;
+
+    if (!userId || !agentId) {
+      return res.status(400).json({ message: "Missing required fields" });
+    }
+
+    // Verify ownership
+    const [agent] = await db
+      .select()
+      .from(agents)
+      .where(and(eq(agents.agentId, agentId), eq(agents.ownerId, userId)))
+      .limit(1);
+
+    if (!agent) {
+      return res.status(404).json({ message: "Agent not found or unauthorized" });
+    }
+
+    // Validate inputs
+    if (agentName && (typeof agentName !== "string" || agentName.length < 1 || agentName.length > 100)) {
+      return res.status(400).json({ message: "Invalid agent name" });
+    }
+
+    // Update agent
+    const updateData: any = {};
+    if (agentName !== undefined) updateData.agentName = agentName;
+    if (avatarUrl !== undefined) updateData.avatarUrl = avatarUrl;
+    if (specialty !== undefined) updateData.specialty = specialty;
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).json({ message: "No fields to update" });
+    }
+
+    const [updated] = await db
+      .update(agents)
+      .set(updateData)
+      .where(eq(agents.agentId, agentId))
+      .returning();
+
+    res.json(updated);
+  } catch (error) {
+    console.error("Error updating agent:", error);
+    res.status(500).json({ message: "Failed to update agent" });
+  }
+});
+
+// GET /api/bantahbro/agent-stats - Get agent earnings and stats
+router.get("/agent-stats", PrivyAuthMiddleware, async (req: any, res) => {
+  try {
+    const userId = req.user?.id;
+    if (!userId) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    // Get user's agents with their stats
+    const userAgents = await db
+      .select()
+      .from(agents)
+      .where(eq(agents.ownerId, userId));
+
+    const stats = userAgents.reduce((acc: any, agent) => {
+      acc[agent.agentId] = {
+        agentName: agent.agentName,
+        wins: agent.winCount || 0,
+        losses: agent.lossCount || 0,
+        points: agent.points || 0,
+        totalBC: agent.points || 0, // Using points as BC proxy
+        totalUSDT: 0, // To be calculated from transactions if available
+      };
+      return acc;
+    }, {});
+
+    res.json(stats);
+  } catch (error) {
+    console.error("Error fetching agent stats:", error);
+    res.status(500).json({ message: "Failed to fetch agent stats" });
   }
 });
 

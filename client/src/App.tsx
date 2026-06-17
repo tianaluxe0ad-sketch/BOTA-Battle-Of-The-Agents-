@@ -70,6 +70,7 @@ const Bantzz = lazy(() => import("./pages/Bantzz"));
 const Stories = lazy(() => import("./pages/Stories"));
 const BantMap = lazy(() => import("./pages/BantMap"));
 const NotificationTest = lazy(() => import("./pages/NotificationTest"));
+const BotaNotificationsPage = lazy(() => import("./pages/BotaNotificationsPage"));
 const PublicProfile = lazy(() => import("@/pages/PublicProfile"));
 const DailyLoginModal = lazy(() =>
   import("@/components/DailyLoginModal").then((module) => ({ default: module.DailyLoginModal })),
@@ -84,6 +85,7 @@ const Agents = lazy(() => import("./pages/Agents"));
 const AgentDetail = lazy(() => import("./pages/AgentDetail"));
 const BantahBro = lazy(() => import("./pages/BantahBro"));
 const BantahBroBattles = lazy(() => import("./pages/BantahBroBattles"));
+const BantahBroBattlesDuplicate = lazy(() => import("./pages/BantahBroBattlesDuplicate"));
 const BantahBroAgents = lazy(() => import("./pages/BantahBroAgents"));
 const BantahBroMarketplace = lazy(() => import("./pages/BantahBroMarketplace"));
 const BantahBroCommunities = lazy(() => import("./pages/BantahBroCommunities"));
@@ -95,6 +97,7 @@ const BantahBroLauncher = lazy(() => import("./pages/BantahBroLauncher"));
 const BantahBroPolymarket = lazy(() => import("./pages/BantahBroPolymarket"));
 const BantahBroPolymarketBattle = lazy(() => import("./pages/BantahBroPolymarketBattle"));
 const BantahBroRugScorer = lazy(() => import("./pages/BantahBroRugScorer"));
+const BantahBroFighters = lazy(() => import("./pages/BantahBroFighters"));
 const AdminBantahBroEngine = lazy(() => import("./pages/AdminBantahBroEngine"));
 const PartnerPrograms = lazy(() => import("./pages/PartnerPrograms"));
 const PartnerSignup = lazy(() => import("./pages/PartnerSignup"));
@@ -196,8 +199,7 @@ function getInitialBantahBroSectionFromQuery(): AppSection | undefined {
     section === 'import' ||
     section === 'profile' ||
     section === 'prediction' ||
-    section === 'prediction-battle' ||
-    section === 'koth'
+    section === 'prediction-battle'
   ) {
     return section;
   }
@@ -379,7 +381,9 @@ function AppRouter() {
       <Route path="/bota/challenge" component={BantahBroChallenge} />
       <Route path="/bota/arena" component={BantahBroBattles} />
       <Route path="/bota/battles" component={BantahBroBattles} />
+      <Route path="/bota/battles-duplicate" component={BantahBroBattlesDuplicate} />
       <Route path="/bota/agents" component={BantahBroAgents} />
+      <Route path="/bota/fighters" component={BantahBroFighters} />
       <Route path="/bota/marketplace" component={BantahBroMarketplace} />
       <Route path="/bota/communities" component={BantahBroCommunities} />
       <Route path="/bota/rewards" component={BantahBroRewards} />
@@ -390,12 +394,14 @@ function AppRouter() {
       <Route path="/bota/polymarket/:battleId" component={BantahBroPolymarketBattle} />
       <Route path="/bota/polymarket" component={BantahBroPolymarket} />
       <Route path="/bota/rug-scorer" component={BantahBroRugScorer} />
+      <Route path="/bota/notifications" component={BotaNotificationsPage} />
       <Route path="/bota" component={BantahBroHome} />
       <Route path="/bota/" component={BantahBroHome} />
 
       <Route path="/battle/battle-engine/live" component={AdminEngineRedirect} />
       <Route path="/battle/challenge" component={BantahBroChallenge} />
       <Route path="/battle/battles" component={BantahBroBattles} />
+      <Route path="/battle/battles-duplicate" component={BantahBroBattlesDuplicate} />
       <Route path="/battle/agents" component={BantahBroAgents} />
       <Route path="/battle/marketplace" component={BantahBroMarketplace} />
       <Route path="/battle/communities" component={BantahBroCommunities} />
@@ -407,6 +413,7 @@ function AppRouter() {
       <Route path="/battle/polymarket/:battleId" component={BantahBroPolymarketBattle} />
       <Route path="/battle/polymarket" component={BantahBroPolymarket} />
       <Route path="/battle/rug-scorer" component={BantahBroRugScorer} />
+      <Route path="/battle/notifications" component={BotaNotificationsPage} />
       <Route path="/battle" component={BantahBroHome} />
       <Route path="/battle/" component={BantahBroHome} />
 
@@ -416,6 +423,7 @@ function AppRouter() {
           <Route path="/challenge" component={BantahBroChallenge} />
           <Route path="/arena" component={BantahBroBattles} />
           <Route path="/battles" component={BantahBroBattles} />
+          <Route path="/battles-duplicate" component={BantahBroBattlesDuplicate} />
           <Route path="/agents" component={BantahBroAgents} />
           <Route path="/marketplace" component={BantahBroMarketplace} />
           <Route path="/communities" component={BantahBroCommunities} />
@@ -428,6 +436,7 @@ function AppRouter() {
           <Route path="/polymarket/:battleId" component={BantahBroPolymarketBattle} />
           <Route path="/polymarket" component={BantahBroPolymarket} />
           <Route path="/rug-scorer" component={BantahBroRugScorer} />
+          <Route path="/notifications" component={BotaNotificationsPage} />
           <Route path="/" component={BantahBroHome} />
         </>
       )}
@@ -435,6 +444,7 @@ function AppRouter() {
       <Route path="/bantahbro/battle-engine/live" component={AdminEngineRedirect} />
       <Route path="/bantahbro/challenge" component={BantahBroChallenge} />
       <Route path="/bantahbro/battles" component={BantahBroBattles} />
+      <Route path="/bantahbro/battles-duplicate" component={BantahBroBattlesDuplicate} />
       <Route path="/bantahbro/agents" component={BantahBroAgents} />
       <Route path="/bantahbro/marketplace" component={BantahBroMarketplace} />
       <Route path="/bantahbro/communities" component={BantahBroCommunities} />
@@ -446,6 +456,7 @@ function AppRouter() {
       <Route path="/bantahbro/polymarket/:battleId" component={BantahBroPolymarketBattle} />
       <Route path="/bantahbro/polymarket" component={BantahBroPolymarket} />
       <Route path="/bantahbro/rug-scorer" component={BantahBroRugScorer} />
+      <Route path="/bantahbro/notifications" component={BotaNotificationsPage} />
       <Route path="/bantahbro" component={BantahBroHome} />
       <Route path="/bantahbro/" component={BantahBroHome} />
       <Route path="/Agents" component={BantahBroAgents} />

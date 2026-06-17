@@ -106,10 +106,10 @@ type DesktopTrollboxItem = {
 type BattleOutcomeTone = 'live' | 'result' | 'win' | 'loss' | 'reward' | 'settling';
 
 type MobileBattlePanel = 'trade' | 'stats' | 'side' | 'feed';
-type MobileDetailTab = 'overview' | 'charts' | 'trades' | 'holders';
-type MobileSocialTab = 'side' | 'trollbox' | 'events' | 'charts' | 'stats' | 'slips' | 'top';
+type MobileDetailTab = 'overview' | 'trades' | 'holders';
+type MobileSocialTab = 'side' | 'trollbox' | 'events' | 'stats' | 'slips' | 'top';
 type DesktopSideTab = 'trollbox' | 'details';
-type DesktopBattleTab = 'charts' | 'stats' | 'feed' | 'side';
+type DesktopBattleTab = 'stats' | 'feed' | 'side';
 const BATTLE_MODE_STORAGE_KEY = 'bantahbro:battle-mode:v2';
 const GAME_SOUND_STORAGE_KEY = 'bota.game.soundEnabled';
 const DESKTOP_BATTLE_MEDIA_QUERY = '(min-width: 1024px)';
@@ -1592,7 +1592,6 @@ function DesktopBattleTabs({
 }) {
   const tabs: Array<{ id: DesktopBattleTab; label: string }> = [
     { id: 'side', label: 'Predict' },
-    { id: 'charts', label: 'Charts' },
     { id: 'stats', label: 'Stats' },
     { id: 'feed', label: 'Battle Feed' },
   ];
@@ -1616,12 +1615,6 @@ function DesktopBattleTabs({
       </div>
 
       <div className="p-1">
-        {activeTab === 'charts' && (
-          <div className="grid grid-cols-2 gap-1">
-            <BattleChartPanel side={left} index={0} />
-            <BattleChartPanel side={right} index={1} />
-          </div>
-        )}
         {activeTab === 'stats' && <BattleStatsPanel left={left} right={right} battle={battle} pool={pool} />}
         {activeTab === 'feed' && <BattleFeedPanel events={events} left={left} right={right} />}
         {activeTab === 'side' && (
@@ -2470,7 +2463,6 @@ function MobileDetailsDeck({
   const showMarketStats = hasRealMarketStats(left) && hasRealMarketStats(right);
   const tabs: Array<{ id: MobileDetailTab; label: string }> = [
     { id: 'overview', label: 'Overview' },
-    { id: 'charts', label: 'Charts' },
     { id: 'trades', label: 'Trades' },
     { id: 'holders', label: 'Holders' },
   ];
@@ -2521,13 +2513,6 @@ function MobileDetailsDeck({
                 <MobileMetricCard label={`${battleSymbol(right)} BantCredit`} value={formatArenaBantCredits(right)} tone="text-yellow-300" />
               </div>
             )}
-          </div>
-        )}
-
-        {activeTab === 'charts' && (
-          <div className="space-y-1.5">
-            <BattleChartPanel side={left} index={0} />
-            <BattleChartPanel side={right} index={1} />
           </div>
         )}
 
@@ -3102,13 +3087,6 @@ function MobileSocialPanel({
             selectedSide={selectedSide}
             onJoin={onJoinSide}
           />
-        )}
-
-        {activeTab === 'charts' && (
-          <div className="no-scrollbar min-h-0 flex-1 space-y-2 overflow-y-auto [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-            <BattleChartPanel side={left} index={0} />
-            <BattleChartPanel side={right} index={1} />
-          </div>
         )}
 
         {activeTab === 'stats' && (

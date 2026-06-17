@@ -20,14 +20,13 @@ interface SidebarProps {
 }
 
 const menuItems: { icon: string; label: string; section: AppSection }[] = [
-  { icon: '👑', label: 'King of the Hill', section: 'koth' },
-  { icon: '🏟️', label: 'HEAD to HEAD (Arena)', section: 'battles' },
+  { icon: '🏟️', label: 'ARENA (A2A)', section: 'battles' },
   { icon: '🤖', label: 'Agents', section: 'agents' },
+  { icon: '⬇️', label: 'Create Fighter', section: 'import' },
   { icon: '🛒', label: 'Marketplace', section: 'marketplace' },
   { icon: '🏆', label: 'Leaderboard', section: 'leaderboard' },
   { icon: '🌐', label: 'Communities', section: 'communities' },
   { icon: '🎁', label: 'Rewards', section: 'rewards' },
-  { icon: '⬇️', label: 'Import Your Agent', section: 'import' },
   { icon: '📘', label: 'Docs', section: 'docs' },
   { icon: '📣', label: 'Advertise', section: 'ads' },
 ]
@@ -82,12 +81,6 @@ export default function Sidebar({
     staleTime: 30_000,
     refetchInterval: 60_000,
   })
-  
-  const { data: kothData } = useQuery<{ participants: any[] }>({
-    queryKey: ['/api/bantahbro/koth/participants'],
-    refetchInterval: 15_000,
-  })
-  const kothActiveCount = kothData?.participants?.filter(p => p.status === 'live' || p.status === 'queued')?.length || 0
   
   const { data: agentsDirData } = useQuery<{ agents: any[] }>({
     queryKey: ['/api/bantahbro/agents-directory'],
@@ -153,11 +146,6 @@ export default function Sidebar({
                 {item.section === 'battles' && (
                   <span className="ml-auto rounded-full bg-destructive px-1.5 py-0.5 text-[10px] font-black leading-none text-white">
                     {liveBattleCount}
-                  </span>
-                )}
-                {item.section === 'koth' && kothActiveCount > 0 && (
-                  <span className="ml-auto rounded-full bg-amber-500 px-1.5 py-0.5 text-[10px] font-black leading-none text-black">
-                    {kothActiveCount}
                   </span>
                 )}
                 {item.section === 'agents' && totalAgentsCount > 0 && (

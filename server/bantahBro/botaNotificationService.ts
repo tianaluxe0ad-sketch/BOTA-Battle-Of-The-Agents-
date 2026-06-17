@@ -323,6 +323,38 @@ export async function notifyBotaFighterImported(
   ]);
 }
 
+export async function notifyBotaFighterQueueReentered(input: {
+  fighter: BotaFighterProfile;
+  recordId: string;
+  outcome: "win" | "loss" | "draw";
+}) {
+  const userId = ownerUserIdForProfile(input.fighter);
+  if (!userId) return;
+
+  const resultLabel =
+    input.outcome === "win"
+      ? "won and is ready"
+      : input.outcome === "loss"
+      ? "lost and is ready"
+      : "drew and is ready";
+
+  await notifyBotaUser({
+    userId,
+    type: "bota_fighter_queue_reentered",
+    title: "Arena queue ready",
+    message: `${input.fighter.displayName} ${resultLabel} for the next Arena queue.`,
+    icon: "B",
+    url: "/bota?section=profile",
+    data: {
+      fighter: fighterData(input.fighter),
+      recordId: input.recordId,
+      outcome: input.outcome,
+    },
+    priority: 3,
+    fomoLevel: "high",
+  });
+}
+
 export async function notifyBotaLeaderboardRankChange(input: BotaRankChangeNotification) {
   const previousRank = input.previousRank;
   const nextRank = input.nextRank;

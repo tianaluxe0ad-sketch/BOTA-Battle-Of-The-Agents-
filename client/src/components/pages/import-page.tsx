@@ -21,6 +21,15 @@ import {
   Wallet,
 } from 'lucide-react'
 import { apiRequest } from '@/lib/queryClient'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+} from '@/components/ui/dialog'
 import { botaCharacterAlt, botaCharacterAvatar } from '@/lib/botaCharacterLayer'
 import { botaAppHref } from '@/lib/botaUrl'
 import { useAuth } from '@/hooks/useAuth'
@@ -32,6 +41,8 @@ import type {
 import { getBotaDerivativeFighter } from '@shared/botaDerivativeFighter'
 
 type WalletAssetType = 'ai-agent' | 'nft' | 'ens' | 'token'
+
+type ImportFilter = WalletAssetType | 'all' | 'create'
 
 type WalletFighterAsset = {
   id: string
@@ -115,13 +126,38 @@ type BotaProfileFeed = {
   updatedAt: string
 }
 
-const assetFilters: Array<{ value: WalletAssetType | 'all'; label: string }> = [
+const assetFilters: Array<{ value: ImportFilter; label: string }> = [
   { value: 'all', label: 'All' },
   { value: 'ai-agent', label: 'Agents' },
   { value: 'nft', label: 'NFTs' },
   { value: 'ens', label: 'ENS' },
   { value: 'token', label: 'Tokens' },
+  { value: 'create', label: 'Create Fighter' },
 ]
+
+const createStyleOptions = [
+  {
+    value: 'adaptive',
+    label: 'Adaptive',
+    agentClass: 'oracle',
+    archetype: 'oracle_duelist',
+    personality: 'adaptive',
+  },
+  {
+    value: 'berserker',
+    label: 'Berserker',
+    agentClass: 'berserker',
+    archetype: 'chaos_berserker',
+    personality: 'aggressive',
+  },
+  {
+    value: 'scout',
+    label: 'Scout',
+    agentClass: 'scout',
+    archetype: 'momentum_scout',
+    personality: 'opportunistic',
+  },
+] as const
 
 const sourceLogoMap: Record<string, string> = {
   ElizaOS: '/assets/source-elizaos.png',
@@ -259,11 +295,19 @@ export default function ImportPage() {
   const connectedWallet = walletFromPrivyUser(user)
   const ownScanWallet = connectedWallet.trim()
   const [walletDraft, setWalletDraft] = useState(connectedWallet)
-  const [filter, setFilter] = useState<WalletAssetType | 'all'>('all')
+  const [filter, setFilter] = useState<ImportFilter>('all')
   const [selectedAssetId, setSelectedAssetId] = useState<string>('')
+  const [createType, setCreateType] = useState<'new' | 'existing'>('new')
+  const [selectedCreateAssetId, setSelectedCreateAssetId] = useState<string>('')
+  const [createName, setCreateName] = useState('')
+  const [createStyle, setCreateStyle] = useState(createStyleOptions[0].value)
+  const [createAutoAssign, setCreateAutoAssign] = useState(true)
   const [ensDraft, setEnsDraft] = useState('')
+  const isCreateMode = filter === 'create'
   const [ensPreviewAsset, setEnsPreviewAsset] = useState<WalletFighterAsset | null>(null)
   const [importedProfile, setImportedProfile] = useState<BotaFighterProfile | null>(null)
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false)
+  const [createStatus, setCreateStatus] = useState<'idle' | 'pending' | 'success'>('idle')
   const { toast } = useToast()
   const queryClient = useQueryClient()
 
@@ -296,13 +340,82 @@ export default function ImportPage() {
   )
 
   const selectedAsset = useMemo(() => {
+    if (isCreateMode) return null
     return assets.find((asset) => asset.id === selectedAssetId) || visibleAssets[0] || assets[0] || null
-  }, [assets, selectedAssetId, visibleAssets])
+  }, [assets, selectedAssetId, visibleAssets, isCreateMode])
+
+  const selectedCreateAsset = useMemo(
+    () => assets.find((asset) => asset.id === selectedCreateAssetId) || assets[0] || null,
+    [assets, selectedCreateAssetId],
+  )
 
   useEffect(() => {
     if (!selectedAsset || selectedAsset.id === selectedAssetId) return
     setSelectedAssetId(selectedAsset.id)
   }, [selectedAsset, selectedAssetId])
+
+  useEffect(() => {
+    if (createType === 'existing' && !selectedCreateAssetId && assets[0]) {
+      setSelectedCreateAssetId(assets[0].id)
+    }
+  }, [createType, assets, selectedCreateAssetId])
+
+  const createMutation = useMutation({
+    mutationFn: async () => {
+      if (!isAuthenticated) throw new Error('Sign in to create a fighter.')
+      const name = createName.trim()
+      if (!name) throw new Error('Enter a fighter name.')
+      if (createType === 'existing' && !selectedCreateAsset) throw new Error('Select an existing asset to import.')
+
+      const selectedStyle = createStyleOptions.find((option) => option.value === createStyle)
+      if (!selectedStyle) throw new Error('Pick a style.')
+
+      const payload: BotaFighterProfileImportRequest = {
+        displayName: name,
+        origin: createType === 'existing' ? selectedCreateAsset?.fighter.origin || 'manual' : 'manual',
+        originId:
+          createType === 'existing'
+            ? selectedCreateAsset?.fighter.originId || selectedCreateAsset?.id
+            : undefined,
+        agentClass: selectedStyle.agentClass,
+        archetype: selectedStyle.archetype,
+        league: 'Open League',
+        walletAddress: ownScanWallet || selectedCreateAsset?.fighter.walletAddress || null,
+        metadata: {
+          ...(createType === 'existing' ? selectedCreateAsset?.fighter.metadata : {}),
+          importedFrom: createType === 'existing' ? 'create-existing' : 'manual-create',
+          selectedAssetId: createType === 'existing' ? selectedCreateAsset?.id : undefined,
+          personaStyle: selectedStyle.personality,
+          loadout: createAutoAssign ? 'auto' : 'manual',
+        },
+      }
+
+      return apiRequest('POST', '/api/bantahbro/fighter-profiles/import', payload) as Promise<ImportResponse>
+    },
+    onMutate: () => {
+      setIsCreateDialogOpen(true)
+      setCreateStatus('pending')
+    },
+    onSuccess: (result) => {
+      setImportedProfile(result.profile)
+      setCreateStatus('success')
+      queryClient.invalidateQueries({ queryKey: ['/api/bantahbro/fighter-profiles'] })
+      queryClient.invalidateQueries({ queryKey: ['/api/bantahbro/agents-directory'] })
+      queryClient.invalidateQueries({ queryKey: ['/api/bantahbro/profile'] })
+      toast({
+        title: 'Fighter deployed',
+        description: `${result.profile.displayName} entered your next Arena queue.`,
+      })
+    },
+    onError: (error: Error) => {
+      setCreateStatus('idle')
+      toast({
+        title: 'Deploy failed',
+        description: error.message,
+        variant: 'destructive',
+      })
+    },
+  })
 
   const importMutation = useMutation({
     mutationFn: async () => {
@@ -453,7 +566,12 @@ export default function ImportPage() {
               <div className="mt-2 flex flex-wrap items-center gap-1.5">
                 {assetFilters.map((item) => {
                   const active = filter === item.value
-                  const count = item.value === 'all' ? assets.length : scanQuery.data?.counts?.[item.value] || 0
+                  const count =
+                    item.value === 'all'
+                      ? assets.length
+                      : item.value === 'create'
+                        ? undefined
+                        : scanQuery.data?.counts?.[item.value] || 0
                   return (
                     <button
                       key={item.value}
@@ -465,9 +583,15 @@ export default function ImportPage() {
                           : 'border-border bg-card text-foreground hover:border-primary/50'
                       }`}
                     >
-                      {item.value !== 'all' ? <AssetTypeIcon type={item.value} size={12} /> : <Sparkles size={12} />}
+                      {item.value === 'all' ? (
+                        <Sparkles size={12} />
+                      ) : item.value === 'create' ? (
+                        <Bot size={12} />
+                      ) : (
+                        <AssetTypeIcon type={item.value} size={12} />
+                      )}
                       {item.label}
-                      <span className="text-muted-foreground">{count}</span>
+                      {count !== undefined ? <span className="text-muted-foreground">{count}</span> : null}
                     </button>
                   )
                 })}
@@ -505,6 +629,142 @@ export default function ImportPage() {
                     <Loader2 size={16} className="animate-spin" />
                     Scanning wallet assets
                   </span>
+                </div>
+              ) : isCreateMode ? (
+                <div className="col-span-full rounded border border-border bg-card p-3 text-sm text-foreground">
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <div className="text-base font-black">⚔️ Create Fighter</div>
+                      <div className="mt-1 text-[11px] text-muted-foreground">
+                        One-shot Gen 1 launch: name, style, deploy.
+                      </div>
+                    </div>
+                    <div className="rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-black text-primary">Gen 1</div>
+                  </div>
+
+                  <div className="mt-3 space-y-3">
+                    <label className="block text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+                      Fighter name
+                    </label>
+                    <Input
+                      value={createName}
+                      onChange={(event) => setCreateName(event.target.value)}
+                      placeholder="Name"
+                      className="h-10 w-full"
+                    />
+
+                    <div>
+                      <div className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+                        Source
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {['new', 'existing'].map((value) => (
+                          <button
+                            key={value}
+                            type="button"
+                            onClick={() => setCreateType(value as 'new' | 'existing')}
+                            className={`rounded-full border px-3 py-1.5 text-[11px] font-black transition ${
+                              createType === value
+                                ? 'border-primary bg-primary/10 text-primary'
+                                : 'border-border bg-background text-foreground hover:border-primary/50'
+                            }`}
+                          >
+                            {value === 'new' ? 'New' : 'Wallet'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    {createType === 'existing' ? (
+                      <div>
+                        <div className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+                          Wallet asset
+                        </div>
+                        <div className="mt-2 space-y-2 max-h-48 overflow-y-auto">
+                          {assets.map((asset) => (
+                            <button
+                              key={asset.id}
+                              type="button"
+                              onClick={() => setSelectedCreateAssetId(asset.id)}
+                              className={`w-full rounded-lg border p-2 text-left transition ${
+                                selectedCreateAsset?.id === asset.id
+                                  ? 'border-primary bg-primary/10'
+                                  : 'border-border bg-card hover:border-primary/50'
+                              }`}
+                            >
+                              <div className="flex items-center gap-2">
+                                <img
+                                  src={characterAvatarForAsset(asset)}
+                                  alt={botaCharacterAlt(asset.name)}
+                                  className="h-8 w-8 rounded-full border border-border object-cover"
+                                />
+                                <div className="min-w-0">
+                                  <div className="truncate text-sm font-black text-foreground">{asset.name}</div>
+                                  <div className="truncate text-[11px] text-muted-foreground">{asset.subtitle}</div>
+                                </div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null}
+
+                    <div>
+                      <div className="text-[10px] font-black uppercase tracking-[0.2em] text-muted-foreground">
+                        Style
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-2">
+                        {createStyleOptions.map((option) => (
+                          <button
+                            key={option.value}
+                            type="button"
+                            onClick={() => setCreateStyle(option.value)}
+                            className={`rounded-full border px-3 py-1.5 text-[11px] font-black transition ${
+                              createStyle === option.value
+                                ? 'border-primary bg-primary/10 text-primary'
+                                : 'border-border bg-background text-foreground hover:border-primary/50'
+                            }`}
+                          >
+                            {option.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between rounded border border-border bg-background px-3 py-2 text-xs font-black text-foreground">
+                      <span>Loadout</span>
+                      <button
+                        type="button"
+                        onClick={() => setCreateAutoAssign((current) => !current)}
+                        className={`rounded-full px-3 py-1 text-[10px] font-black transition ${
+                          createAutoAssign
+                            ? 'bg-primary text-primary-foreground'
+                            : 'border border-border bg-background text-foreground hover:border-primary/50'
+                        }`}
+                      >
+                        {createAutoAssign ? 'Auto' : 'Manual'}
+                      </button>
+                    </div>
+
+                    <div className="rounded border border-border bg-background px-3 py-2 text-xs text-muted-foreground">
+                      Wallet
+                      <div className="mt-1 font-black text-foreground">{ownScanWallet ? 'Connected' : 'Connect to deploy'}</div>
+                    </div>
+
+                    <Button
+                      onClick={() => {
+                        if (!isAuthenticated) {
+                          login?.()
+                          return
+                        }
+                        createMutation.mutate()
+                      }}
+                      disabled={createMutation.isPending || !createName.trim() || (createType === 'existing' && !selectedCreateAsset)}
+                      className="w-full h-10"
+                    >
+                      {createMutation.isPending ? 'Deploying…' : 'Deploy'}
+                    </Button>
+                  </div>
                 </div>
               ) : visibleAssets.length ? (
                 visibleAssets.map((asset) => {
@@ -812,6 +1072,59 @@ export default function ImportPage() {
           </aside>
         </div>
       </div>
+
+      <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+        <DialogContent className="max-w-sm p-4">
+          <DialogHeader>
+            <DialogTitle className="text-base">
+              {createStatus === 'pending'
+                ? 'Deploying…'
+                : createStatus === 'success'
+                ? 'Queued'
+                : 'Create fighter'}
+            </DialogTitle>
+            <DialogDescription className="text-sm">
+              {createStatus === 'pending'
+                ? 'Creating your fighter and joining the next queue.'
+                : createStatus === 'success'
+                ? `${importedProfile?.displayName || 'Fighter'} is queued.`
+                : 'Close to continue and review your queue.'}
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="mt-3 space-y-3">
+            {createStatus === 'pending' ? (
+              <div className="flex items-center justify-center gap-2 rounded border border-border bg-card p-4 text-sm font-black text-muted-foreground">
+                <Loader2 size={18} className="animate-spin" />
+                <span>Working…</span>
+              </div>
+            ) : createStatus === 'success' && importedProfile ? (
+              <div className="rounded border border-primary/30 bg-primary/5 p-3 text-sm text-foreground">
+                <div className="font-black">{importedProfile.displayName}</div>
+                <div className="mt-1 text-xs text-muted-foreground">Queued for the next Arena round.</div>
+              </div>
+            ) : (
+              <div className="rounded border border-border bg-background p-3 text-sm text-muted-foreground">
+                Your fighter will be generated and queued on submit.
+              </div>
+            )}
+          </div>
+
+          <DialogFooter className="mt-3 flex flex-col gap-2 sm:flex-row sm:justify-end">
+            <Button type="button" onClick={() => setIsCreateDialogOpen(false)} className="w-full sm:w-auto">
+              Close
+            </Button>
+            {createStatus === 'success' && importedProfile ? (
+              <a
+                href={botaAppHref('/bota?section=battles')}
+                className="inline-flex w-full items-center justify-center rounded bg-primary px-3 py-2 text-xs font-black text-primary-foreground hover:bg-primary/90 sm:w-auto"
+              >
+                Enter Arena
+              </a>
+            ) : null}
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   )
 }

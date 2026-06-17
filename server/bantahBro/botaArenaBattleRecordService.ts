@@ -20,7 +20,8 @@ import {
   getBotaFighterAgentIdForBattleSide,
   syncBotaFighterProfilesFromBattle,
 } from "./botaFighterProfileService";
-import { notifyBotaArenaBattleOutcome } from "./botaNotificationService";
+import { notifyBotaArenaBattleOutcome, notifyBotaFighterQueueReentered } from "./botaNotificationService";
+import type { BotaFighterProfile } from "@shared/botaFighterProfile";
 
 let ensureBattleRecordsTablePromise: Promise<void> | null = null;
 
@@ -336,6 +337,23 @@ export async function recordBotaArenaBattleFromLiveBattle(input: {
     loserProfile: profileUpdate.loser?.after || null,
     rankChanges: profileUpdate.rankChanges,
   });
+
+  await Promise.allSettled([
+    profileUpdate.winner?.after
+      ? notifyBotaFighterQueueReentered({
+          fighter: profileUpdate.winner.after,
+          recordId: record.id,
+          outcome: winnerSideId ? "win" : "draw",
+        })
+      : Promise.resolve(),
+    profileUpdate.loser?.after
+      ? notifyBotaFighterQueueReentered({
+          fighter: profileUpdate.loser.after,
+          recordId: record.id,
+          outcome: loserSide?.id ? "loss" : "draw",
+        })
+      : Promise.resolve(),
+  ]);
 
   return {
     record,

@@ -7167,6 +7167,243 @@ export async function registerRoutes(app: Express, upload?: any): Promise<Server
     }
   });
 
+  // ========================================
+  // BOTA (Battle of the Agents) Notifications
+  // ========================================
+
+  /**
+   * GET /api/bantahbro/notifications
+   * Fetch BOTA activity notifications for authenticated user
+   */
+  app.get('/api/bantahbro/notifications', PrivyAuthMiddleware, async (req: AuthenticatedRequest, res) => {
+    try {
+      const userId = getUserId(req);
+      const limit = parseInt(req.query.limit as string) || 50;
+      const offset = parseInt(req.query.offset as string) || 0;
+
+      // Fetch notifications for user's agents
+      const botaNotifs = await db
+        .select()
+        .from(notifications)
+        .where(and(
+          eq(notifications.userId, userId),
+          eq(notifications.type, 'bota_activity')
+        ))
+        .orderBy(notifications.createdAt)
+        .limit(limit)
+        .offset(offset);
+
+      res.json(botaNotifs);
+    } catch (error) {
+      console.error('Error fetching BOTA notifications:', error);
+      res.status(500).json({ error: 'Failed to fetch notifications' });
+    }
+  });
+
+  /**
+   * POST /api/bantahbro/notifications
+   * Create test notification (dev only)
+   */
+  app.post('/api/bantahbro/notifications', PrivyAuthMiddleware, async (req: AuthenticatedRequest, res) => {
+    try {
+      const userId = getUserId(req);
+      const { eventType, agentName, agentId, opponentName, earnedBC, earnedUSDT, battleId, metadata } = req.body;
+
+      if (!eventType || !agentName || !agentId) {
+        return res.status(400).json({ error: 'Missing required fields: eventType, agentName, agentId' });
+      }
+
+      const notificationData: Record<string, any> = {
+        eventType,
+        agentName,
+        agentId,
+        timestamp: new Date().toISOString(),
+        read: false,
+      };
+
+      if (opponentName) notificationData.opponentName = opponentName;
+      if (earnedBC) notificationData.earnedBC = earnedBC;
+      if (earnedUSDT) notificationData.earnedUSDT = earnedUSDT;
+      if (battleId) notificationData.battleId = battleId;
+      if (metadata) Object.assign(notificationData, metadata);
+
+      const newNotif = await db
+        .insert(notifications)
+        .values({
+          userId,
+          type: 'bota_activity',
+          title: `[${eventType.toUpperCase()}] ${agentName}`,
+          message: `Agent activity: ${eventType}`,
+          data: notificationData,
+          read: false,
+          createdAt: new Date(),
+        })
+        .returning();
+
+      res.json(newNotif[0]);
+    } catch (error) {
+      console.error('Error creating notification:', error);
+      res.status(500).json({ error: 'Failed to create notification' });
+    }
+  });
+
+  /**
+   * POST /api/bantahbro/notifications/test-create
+   * Create test notifications (no auth required)
+   */
+  app.post('/api/bantahbro/notifications/test-create', async (req: Request, res: Response) => {
+    try {
+      // Use fixed test user ID
+      const userId = 'demo-user-001';
+      
+      const testNotifications = [
+        {
+          eventType: 'queued',
+          agentName: 'vitalik.eth',
+          agentId: 'agent-001',
+        },
+        {
+          eventType: 'match_found',
+          agentName: 'wizard.eth',
+          agentId: 'agent-002',
+          opponentName: 'satoshi.eth',
+        },
+        {
+          eventType: 'win',
+          agentName: 'vitalik.eth',
+          agentId: 'agent-001',
+          opponentName: 'wizard.eth',
+          earnedBC: 45,
+          earnedUSDT: 0.009,
+          battleId: 'battle-001',
+        },
+        {
+          eventType: 'loss',
+          agentName: 'wizard.eth',
+          agentId: 'agent-002',
+          opponentName: 'satoshi.eth',
+          battleId: 'battle-002',
+        },
+        {
+          eventType: 'pot_payout',
+          agentName: 'bantah.eth',
+          agentId: 'agent-003',
+          earnedUSDT: 4.20,
+        },
+        {
+          eventType: 'tool_drop',
+          agentName: 'elite.eth',
+          agentId: 'agent-004',
+        },
+        {
+          eventType: 'royale_result',
+          agentName: 'royale.eth',
+          agentId: 'agent-005',
+        },
+      ];
+
+      const created = [];
+      for (const notif of testNotifications) {
+        const notificationData: Record<string, any> = {
+          eventType: notif.eventType,
+          agentName: notif.agentName,
+          agentId: notif.agentId,
+          timestamp: new Date().toISOString(),
+          read: false,
+        };
+
+        if (notif.opponentName) notificationData.opponentName = notif.opponentName;
+        if (notif.earnedBC) notificationData.earnedBC = notif.earnedBC;
+        if (notif.earnedUSDT) notificationData.earnedUSDT = notif.earnedUSDT;
+        if (notif.battleId) notificationData.battleId = notif.battleId;
+
+        const newNotif = await db
+          .insert(notifications)
+          .values({
+            userId,
+            type: 'bota_activity',
+            title: `[${notif.eventType.toUpperCase()}] ${notif.agentName}`,
+            message: `Agent activity: ${notif.eventType}`,
+            data: notificationData,
+            read: false,
+            createdAt: new Date(),
+          })
+          .returning();
+
+        created.push(newNotif[0]);
+      }
+
+      res.json({ success: true, created: created.length, notifications: created });
+    } catch (error) {
+      console.error('Error creating test notifications:', error);
+      res.status(500).json({ error: 'Failed to create test notifications', details: String(error) });
+    }
+  });
+
+  /**
+   * PATCH /api/bantahbro/notifications/:id/read
+   * Mark BOTA notification as read
+   */
+  app.patch('/api/bantahbro/notifications/:id/read', PrivyAuthMiddleware, async (req: AuthenticatedRequest, res) => {
+    try {
+      const notificationId = req.params.id;
+      const userId = getUserId(req);
+
+      // Verify ownership
+      const notif = await db
+        .select()
+        .from(notifications)
+        .where(eq(notifications.id, notificationId))
+        .limit(1);
+
+      if (!notif.length || notif[0].userId !== userId) {
+        return res.status(403).json({ error: 'Unauthorized' });
+      }
+
+      const updated = await db
+        .update(notifications)
+        .set({ read: true })
+        .where(eq(notifications.id, notificationId))
+        .returning();
+
+      res.json(updated[0]);
+    } catch (error) {
+      console.error('Error marking notification as read:', error);
+      res.status(500).json({ error: 'Failed to update notification' });
+    }
+  });
+
+  /**
+   * DELETE /api/bantahbro/notifications/:id
+   * Dismiss/delete BOTA notification
+   */
+  app.delete('/api/bantahbro/notifications/:id', PrivyAuthMiddleware, async (req: AuthenticatedRequest, res) => {
+    try {
+      const notificationId = req.params.id;
+      const userId = getUserId(req);
+
+      // Verify ownership
+      const notif = await db
+        .select()
+        .from(notifications)
+        .where(eq(notifications.id, notificationId))
+        .limit(1);
+
+      if (!notif.length || notif[0].userId !== userId) {
+        return res.status(403).json({ error: 'Unauthorized' });
+      }
+
+      await db
+        .delete(notifications)
+        .where(eq(notifications.id, notificationId));
+
+      res.json({ success: true });
+    } catch (error) {
+      console.error('Error deleting notification:', error);
+      res.status(500).json({ error: 'Failed to delete notification' });
+    }
+  });
+
   // Treasury Analytics Routes
   app.get('/api/admin/treasury/analytics/metrics', adminAuth, async (req: AdminAuthRequest, res) => {
     try {

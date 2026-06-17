@@ -16,10 +16,15 @@ import {
   Wrench,
   ShieldHalf,
   Box,
-  ScrollText
+  ScrollText,
+  Edit2,
+  Save,
+  X
 } from 'lucide-react'
 import { Skeleton } from '@/components/ui/skeleton'
 import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import {
   Dialog,
   DialogContent,
@@ -199,9 +204,11 @@ export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState<'fighters' | 'queue' | 'history' | 'claim' | 'packs' | 'tools' | 'loadouts' | 'inventory-history' | 'settings'>('fighters')
   const walletAddress = getWalletAddress(user)
   const displayAddress = shortenAddress(walletAddress)
-  const [packToOpen, setPackToOpen] = useState<string | null>(null)
   const [listingFighterId, setListingFighterId] = useState<string | null>(null)
   const [listingPrice, setListingPrice] = useState('10')
+  const [editingFighterId, setEditingFighterId] = useState<string | null>(null)
+  const [editName, setEditName] = useState('')
+  const [editAvatarPreview, setEditAvatarPreview] = useState<string | null>(null)
 
   const { data: rewardsData } = useQuery<RewardsProfileResponse>({
     queryKey: ['/api/bantahbro/rewards', 'profile'],
@@ -377,6 +384,25 @@ export default function ProfilePage() {
     }
   })
 
+  const updateAgentMutation = useMutation({
+    mutationFn: async (data: { agentId: string; agentName?: string; avatarUrl?: string }) => {
+      const res = await apiRequest('PATCH', `/api/bantahbro/agents/${data.agentId}`, {
+        agentName: data.agentName,
+        avatarUrl: data.avatarUrl,
+      })
+      return res
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['/api/bantahbro/profile'] })
+      queryClient.invalidateQueries({ queryKey: ['/api/bantahbro/my-agents'] })
+      toast({ title: 'Success', description: 'Agent profile updated' })
+      setEditingFighterId(null)
+    },
+    onError: (err: any) => {
+      toast({ title: 'Error', description: err.message, variant: 'destructive' })
+    }
+  })
+
   const copyAddress = () => {
     if (!walletAddress) return
     navigator.clipboard.writeText(walletAddress)
@@ -506,7 +532,7 @@ export default function ProfilePage() {
 
           <div className="mt-2 grid grid-cols-5 gap-1.5">
             {[
-              ['Fighters', formatNumber(profileData?.summary?.fighters || 0)],
+            ['My Agents', formatNumber(profileData?.summary?.fighters || 0)],
               ['Queue', formatNumber(queueRows.length)],
               ['BantCredit', formatNumber(displayedBantCredits)],
               ['BANTC claim', formatNumber(claimableBantCredits)],
@@ -522,7 +548,7 @@ export default function ProfilePage() {
 
         <div className="flex overflow-x-auto border-b border-border bg-background px-2">
           {([
-            ['fighters', 'Fighters'],
+            ['fighters', 'My Agents'],
             ['queue', 'Queue'],
             ['history', 'Battle History'],
             ['packs', 'Packs'],
@@ -557,29 +583,110 @@ export default function ProfilePage() {
             <div className="space-y-2">
               {(profileData?.fighters || []).length ? (
                 profileData?.fighters.map((fighter) => (
-                  <div key={fighter.agentId} className="flex items-center gap-2 rounded-md border border-border bg-background/60 p-2">
-                    <img
-                      src={fighter.avatarUrl || '/assets/bota-bantah-icon.png'}
-                      alt=""
-                      className="h-12 w-12 rounded border border-border bg-card object-cover"
-                    />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-black text-foreground">{formatAgentName(fighter.displayName)}</div>
-                      <div className="mt-0.5 truncate text-xs text-muted-foreground">
-                        {fighter.badgeLabel || fighter.origin} / #{fighter.rank || '-'}
+                  editingFighterId === fighter.agentId ? (
+                    // Edit Mode
+                    <div key={fighter.agentId} className="rounded-md border border-primary/50 bg-background/80 p-3 space-y-3">
+                      <div className="flex items-center justify-between">
+                        <h3 className="text-xs font-black uppercase text-foreground">Edit Fighter</h3>
+                        <button
+                          onClick={() => setEditingFighterId(null)}
+                          className="p-1 hover:bg-muted rounded"
+                        >
+                          <X size={14} className="text-muted-foreground" />
+                        </button>
                       </div>
-                      {kothData?.participants?.find(p => p.agentId === fighter.agentId)?.status === 'queued' && (
-                        <div className="mt-1 inline-flex items-center gap-1 rounded bg-primary/20 px-1.5 py-0.5 text-[10px] font-black text-primary">
-                          🛡️ Queued for KOTH
-                        </div>
-                      )}
-                      {kothData?.participants?.find(p => p.agentId === fighter.agentId)?.status === 'live' && (
-                        <div className="mt-1 inline-flex items-center gap-1 rounded bg-green-500/20 px-1.5 py-0.5 text-[10px] font-black text-green-500">
-                          ⚔️ Live in KOTH
-                        </div>
-                      )}
+                      
+                      {/* Avatar */}
+                      <div className="flex flex-col items-center gap-2">
+                        <Avatar className="w-16 h-16">
+                          <AvatarImage src={editAvatarPreview || fighter.avatarUrl} />
+                          <AvatarFallback>{fighter.displayName.charAt(0)}</AvatarFallback>
+                        </Avatar>
+                        <label className="text-[10px] font-black uppercase text-primary cursor-pointer hover:underline">
+                          Change Avatar
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0]
+                              if (file) {
+                                const reader = new FileReader()
+                                reader.onloadend = () => {
+                                  setEditAvatarPreview(reader.result as string)
+                                }
+                                reader.readAsDataURL(file)
+                              }
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+
+                      {/* Name */}
+                      <div className="space-y-1">
+                        <label className="text-[10px] font-black uppercase text-muted-foreground">Name</label>
+                        <Input
+                          value={editName}
+                          onChange={(e) => setEditName(e.target.value)}
+                          placeholder={fighter.displayName}
+                          className="text-xs"
+                        />
+                      </div>
+
+                      {/* Actions */}
+                      <div className="flex gap-2">
+                        <Button
+                          size="sm"
+                          onClick={() => updateAgentMutation.mutate({
+                            agentId: fighter.agentId,
+                            agentName: editName || undefined,
+                            avatarUrl: editAvatarPreview || undefined,
+                          })}
+                          disabled={updateAgentMutation.isPending || (!editName && !editAvatarPreview)}
+                          className="flex-1 h-6 text-[10px]"
+                        >
+                          <Save size={12} className="mr-1" />
+                          Save
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => {
+                            setEditingFighterId(null)
+                            setEditAvatarPreview(null)
+                            setEditName('')
+                          }}
+                          className="flex-1 h-6 text-[10px]"
+                        >
+                          Cancel
+                        </Button>
+                      </div>
                     </div>
-                    <div className="flex flex-col items-end gap-1 text-right text-xs">
+                  ) : (
+                    // View Mode
+                    <div key={fighter.agentId} className="flex items-center gap-2 rounded-md border border-border bg-background/60 p-2">
+                      <img
+                        src={fighter.avatarUrl || '/assets/bota-bantah-icon.png'}
+                        alt=""
+                        className="h-12 w-12 rounded border border-border bg-card object-cover"
+                      />
+                      <div className="min-w-0 flex-1">
+                        <div className="truncate text-sm font-black text-foreground">{formatAgentName(fighter.displayName)}</div>
+                        <div className="mt-0.5 truncate text-xs text-muted-foreground">
+                          {fighter.badgeLabel || fighter.origin} / #{fighter.rank || '-'}
+                        </div>
+                        {kothData?.participants?.find(p => p.agentId === fighter.agentId)?.status === 'queued' && (
+                          <div className="mt-1 inline-flex items-center gap-1 rounded bg-primary/20 px-1.5 py-0.5 text-[10px] font-black text-primary">
+                            🛡️ Queued for KOTH
+                          </div>
+                        )}
+                        {kothData?.participants?.find(p => p.agentId === fighter.agentId)?.status === 'live' && (
+                          <div className="mt-1 inline-flex items-center gap-1 rounded bg-green-500/20 px-1.5 py-0.5 text-[10px] font-black text-green-500">
+                            ⚔️ Live in KOTH
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-col items-end gap-1 text-right text-xs">
                         <div>
                           <div className="font-black text-foreground">{fighter.wins}W-{fighter.losses}L</div>
                           <div className="font-mono text-yellow-300">{formatNumber(fighter.bantCreditsEarned)} BC</div>
@@ -596,16 +703,30 @@ export default function ProfilePage() {
                         <Button 
                           size="sm" 
                           variant="outline" 
+                          className="h-6 text-[10px] px-1 gap-1"
+                          onClick={() => {
+                            setEditingFighterId(fighter.agentId)
+                            setEditName(fighter.displayName)
+                            setEditAvatarPreview(null)
+                          }}
+                        >
+                          <Edit2 size={10} />
+                          Edit
+                        </Button>
+                        <Button 
+                          size="sm" 
+                          variant="outline" 
                           className="h-6 text-[10px] px-2 uppercase"
                           onClick={() => setListingFighterId(fighter.agentId)}
                         >
-                          List for Sale
+                          List
                         </Button>
                       </div>
-                  </div>
+                    </div>
+                  )
                 ))
               ) : (
-                <EmptyState icon={<Swords size={16} />} title="No imported fighters yet" body="Import a real wallet asset or ENS fighter to enter the next Arena queue." />
+                <EmptyState icon={<Swords size={16} />} title="No imported agents yet" body="Import a real wallet asset or ENS fighter to enter the next Arena queue." />
               )}
             </div>
           ) : activeTab === 'queue' ? (

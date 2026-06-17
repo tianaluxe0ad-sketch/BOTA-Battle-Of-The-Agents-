@@ -1,5 +1,5 @@
 import { usePrivy, useWallets } from "@privy-io/react-auth";
-import { useSolanaWallets } from "@privy-io/react-auth/solana";
+import { useWallets as useSolanaWallets } from "@privy-io/react-auth/solana";
 import { useAuth } from "@/hooks/useAuth";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -55,7 +55,7 @@ export function getPreferredOnchainWalletAddress(
 export function useEnsureOnchainWallet() {
   const { isAuthenticated, login, user } = useAuth();
   const { wallets, ready: walletsReady } = useWallets();
-  const { solanaWallets } = useSolanaWallets();
+  const { wallets: solanaWallets } = useSolanaWallets();
   const { connectOrCreateWallet } = usePrivy();
 
   const ensureOnchainWallet = async (intentLabel = "continue") => {
