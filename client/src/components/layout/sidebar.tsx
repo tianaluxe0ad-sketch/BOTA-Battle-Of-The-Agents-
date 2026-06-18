@@ -82,11 +82,7 @@ export default function Sidebar({
     refetchInterval: 60_000,
   })
   
-  const { data: agentsDirData } = useQuery<{ agents: any[] }>({
-    queryKey: ['/api/bantahbro/agents-directory'],
-    staleTime: 60_000,
-  })
-  const totalAgentsCount = agentsDirData?.agents?.length || 0
+  const totalAgentsCount = fighterFeed?.profiles?.length || 0
 
   const liveBattleCount = battleFeed?.battles?.length ?? 0
   const agentOfWeek = useMemo(

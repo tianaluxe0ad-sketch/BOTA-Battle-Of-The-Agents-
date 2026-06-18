@@ -29,6 +29,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogDescription,
+  DialogFooter,
 } from '@/components/ui/dialog'
 import { botaCharacterAlt, botaCharacterAvatar } from '@/lib/botaCharacterLayer'
 import { botaAppHref } from '@/lib/botaUrl'
