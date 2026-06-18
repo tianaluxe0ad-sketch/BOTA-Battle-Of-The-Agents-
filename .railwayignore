@@ -35,3 +35,9 @@ playwright.config.ts
 hardhat.config.ts
 drizzle.config.ts
 Dockerfile
+
+**/.vercel
+**/.codex-tmp
+**/node_modules
+**/.git
+**/.next
