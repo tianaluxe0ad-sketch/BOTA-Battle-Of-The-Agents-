@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
+import { usePublicUserBasic, getUserDisplayName } from '@/hooks/usePublicUserBasic';
 import { arenaLabelForBattleWithSources } from '@/lib/bantahbro/arenaVenues';
 import { getBattleTimeRemainingSeconds, useBattleClock } from '@/lib/bantahbro/battleTiming';
 import { arenaAgentAvatar } from '@/lib/arenaAgentAvatars';
@@ -3264,8 +3265,8 @@ function MobileAgentBattleView({
               compact
               battle={battle}
               battleMode={arenaPreview.mode}
-              battleStatus={arenaPreview.status}
-              startsAtMs={arenaPreview.startsAtMs}
+              battleStatus={battleStatus}
+              startsAtMs={arenaPreviewStartsAtMs}
               matchupLabel={arenaPreview.matchupLabel}
               arenaLabel={battleArenaLabel}
               watchReward={watchReward}
@@ -3816,7 +3817,10 @@ export default function BattlesPage({
 }: BattlesPageProps) {
   const { toast } = useToast();
   const tanstackQueryClient = useQueryClient();
-  const { isAuthenticated, isLoading: authLoading, login } = useAuth();
+  const { isAuthenticated, isLoading: authLoading, login, user: privyUser } = useAuth();
+  const rawUserId = typeof privyUser?.id === 'string' ? privyUser.id.replace('did:privy:', '') : undefined;
+  const publicUser = usePublicUserBasic(rawUserId);
+  const userDisplayName = getUserDisplayName(publicUser, 'Web Degen');
   const { wallets } = useWallets();
   const walletAddress = getWalletAddress(wallets as unknown[]);
   const [chatInput, setChatInput] = useState('');
@@ -3882,8 +3886,22 @@ export default function BattlesPage({
   });
 
   const data = fullFeedData?.battles?.length ? fullFeedData : visibleFeedData;
+
+  const {
+    data: specificBattleResponse,
+    isFetching: specificBattleFetching,
+  } = useQuery<{ battle: AgentBattle }>({
+    queryKey: ['/api/bantahbro/agent-battles/single', requestedBattleId],
+    queryFn: () => apiRequest('GET', `/api/bantahbro/agent-battles/single/${encodeURIComponent(requestedBattleId!)}`),
+    enabled: !isExternalBattle && Boolean(requestedBattleId) && 
+      !data?.battles?.some(b => b.id === requestedBattleId) && 
+      !stickyBattleFeed?.battles?.some(b => b.id === requestedBattleId),
+    staleTime: 5_000,
+    retry: 1,
+  });
+
   const isLoading = visibleFeedLoading && !stickyBattleFeed?.battles?.length;
-  const isFetching = visibleFeedFetching || fullFeedFetching;
+  const isFetching = visibleFeedFetching || fullFeedFetching || specificBattleFetching;
 
   useEffect(() => {
     if (isExternalBattle) return;
@@ -3933,6 +3951,9 @@ export default function BattlesPage({
     requestedBattleId && stickyRequestedBattle?.id === requestedBattleId
       ? stickyRequestedBattle
       : null;
+  const requestedBattleFromSingleFetch = requestedBattleId && specificBattleResponse?.battle?.id === requestedBattleId
+      ? specificBattleResponse.battle
+      : null;
 
   const battle =
     externalBattle ||
@@ -3940,6 +3961,7 @@ export default function BattlesPage({
       ? requestedBattleFromLiveFeed ||
         requestedBattleFromPinnedSnapshot ||
         requestedBattleFromStickyFeed ||
+        requestedBattleFromSingleFetch ||
         resolvedBattleFeed?.battles?.[0]
       : resolvedBattleFeed?.battles?.[0]);
   const { isExpired: isBattleExpired } = useBattleClock({
@@ -3947,6 +3969,11 @@ export default function BattlesPage({
     endsAt: battle?.endsAt,
     fallbackSeconds: battle?.timeRemainingSeconds || 0,
   });
+
+  const arenaPreviewStartsAtMs = arenaPreview.startsAtMs || (battle?.startsAt ? new Date(battle.startsAt).getTime() : 0);
+  const isBattleQueued = arenaPreviewStartsAtMs > Date.now();
+  const battleStatus = isBattleExpired ? 'cancelled' : isBattleQueued ? 'queued' : arenaPreview.status === 'queued' ? 'live' : arenaPreview.status;
+
   const trollboxRoomId = 'agent-battle';
   const battleP2PUrl = !isExternalBattle && battle?.id
     ? `/api/bantahbro/agent-battles/${encodeURIComponent(battle.id)}/p2p/${isAuthenticated ? 'my' : 'pool'}`
@@ -4105,7 +4132,7 @@ export default function BattlesPage({
     enabled: Boolean(battleModeEnabled && battle),
     isAuthenticated,
     battleMode: arenaPreview.mode,
-    battleStatus: isBattleExpired ? 'cancelled' : arenaPreview.status,
+    battleStatus: battleStatus,
     onAward: handleBattleWatchRewardAward,
   });
   const battleArenaLabel = resolveBattleArenaLabel(arenaPreview, battle);
@@ -4394,7 +4421,7 @@ export default function BattlesPage({
       await apiRequest('POST', '/api/bantahbro/trollbox', {
         roomId: trollboxRoomId,
         battleId: battle?.id,
-        user: 'Web Degen',
+        user: userDisplayName,
         message: text,
       });
       await queryClient.invalidateQueries({ queryKey: ['/api/bantahbro/trollbox'] });
@@ -4506,8 +4533,8 @@ export default function BattlesPage({
                 flush
                 battle={battle}
                 battleMode={arenaPreview.mode}
-                battleStatus={arenaPreview.status}
-                startsAtMs={arenaPreview.startsAtMs}
+                battleStatus={battleStatus}
+                startsAtMs={arenaPreviewStartsAtMs}
                 matchupLabel={arenaPreview.matchupLabel}
                 arenaLabel={battleArenaLabel}
                 watchReward={battleWatchReward}

@@ -61,7 +61,7 @@ class GameEngine {
     this.onArenaAdvance = typeof onArenaAdvance === "function" ? onArenaAdvance : null;
     this.musicElement = null;
     this.musicSrc = this.resolveAssetPath("bgm.ogg");
-    this.musicVolume = 0.026;
+    this.musicVolume = 0.25;
     this.musicPauseIntent = false;
     this.musicResumeTimeout = null;
     this.sampleSfxSources = this.createSampleSfxSources();

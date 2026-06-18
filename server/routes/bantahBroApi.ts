@@ -1258,7 +1258,7 @@ function botaBattleRowsForAgentIds(
         endsAt: battle.endsAt,
         rank: side.rank || side.leaderboardRank || null,
         confidence: side.confidence || null,
-        arenaUrl: `/bota?section=battles&battle=${encodeURIComponent(battle.id)}`,
+        arenaUrl: `/bota?section=battles&battle=${encodeURIComponent(battle.id)}${status === "queued" ? `&arenaState=queued&arenaStartsAt=${new Date(battle.startsAt).getTime()}` : ""}`,
       });
     });
   }
@@ -1865,6 +1865,27 @@ router.post(
     }
   },
 );
+
+router.get("/agent-battles/single/:battleId", async (req, res) => {
+  try {
+    const battleId = String(req.params.battleId || "");
+    const liveFeed = await getLiveBantahBroAgentBattles(50, { hydrateLiveStats: true });
+    let battle = liveFeed.battles.find((b) => b.id === battleId);
+    
+    if (!battle) {
+      const queueFeed = await getUpcomingBotaArenaQueue(50);
+      battle = queueFeed.battles.find((b) => b.id === battleId);
+    }
+    
+    if (!battle) {
+      return res.status(404).json({ message: "Battle not found in live or queued arena" });
+    }
+    
+    res.json({ battle });
+  } catch (error) {
+    handleError(res, error);
+  }
+});
 
 router.get("/agent-battles/live", async (req, res) => {
   try {
