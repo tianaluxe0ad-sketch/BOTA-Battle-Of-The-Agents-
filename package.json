@@ -5,11 +5,11 @@
   "license": "MIT",
   "scripts": {
     "dev": "tsx server/index.ts",
-    "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=cjs --outfile=dist/index.cjs --external:./vite",
+    "build": "vite build && esbuild server/index.ts --platform=node --packages=external --bundle --format=esm --outfile=dist/index.js --external:./vite",
     "build:vercel": "vite build && node scripts/build-vercel-server.mjs && node vercel-build.mjs",
     "vercel:build": "cross-env NODE_OPTIONS=--max-old-space-size=8192 npx vercel build --prod && node vercel-bundle-output.mjs",
     "vercel:deploy": "npm run vercel:build && npx vercel deploy --prebuilt --prod --yes",
-    "start": "NODE_ENV=production node dist/index.cjs",
+    "start": "NODE_ENV=production node dist/index.js",
     "heroku-postbuild": "npm run build",
     "check": "tsc",
     "agent:smoke": "tsx scripts/agent-runtime-probe.ts",
