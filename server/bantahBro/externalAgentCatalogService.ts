@@ -133,22 +133,7 @@ const EXTERNAL_SOURCES: ExternalAgentSource[] = [
     archetype: "signal_striker",
     logoUrl: SOURCE_LOGOS.eliza,
   },
-  {
-    origin: "bankr",
-    label: "Bankr",
-    chainId: "base",
-    endpoint: String(
-      process.env.BANKR_AGENT_REGISTRY_URL ||
-        process.env.BOTA_BANKR_AGENT_REGISTRY_URL ||
-        process.env.BOTA_BANKR_AGENT_API_URL ||
-        "",
-    ).trim(),
-    docsUrl: "https://docs.bankr.bot/agent-profiles/overview/",
-    fetchMode: "json-list",
-    className: "oracle",
-    archetype: "oracle_duelist",
-    logoUrl: SOURCE_LOGOS.bankr,
-  },
+
   {
     origin: "agentkit",
     label: "AgentKit",

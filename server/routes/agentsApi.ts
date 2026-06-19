@@ -69,6 +69,7 @@ import {
 import { assertAllowedStakeToken } from "../onchainEscrowService";
 import { serializeBantahSkillError } from "../bantahAgentSkillExecutor";
 import { createAndPushAgentOwnerNotification } from "../agentNotificationService";
+import { ensureBotaFighterProfilesTable } from "../bantahBro/botaFighterProfileService";
 import agentTradingController from "../modules/agent-trading/controllers/agentTradingController";
 
 const router = Router();
@@ -834,6 +835,8 @@ router.post("/create", PrivyAuthMiddleware, async (req, res) => {
       isTokenized: false,
     });
 
+    // Ensure the table exists on fresh Railway deploys before inserting
+    await ensureBotaFighterProfilesTable();
     await db.insert(botaFighterProfiles).values({
       agentId,
       displayName: parsedBody.agentName.trim(),
@@ -854,7 +857,9 @@ router.post("/create", PrivyAuthMiddleware, async (req, res) => {
     try {
       activeRuntimeConfig = await startManagedBantahAgentRuntime(agentId);
     } catch (error: any) {
+      // Roll back both tables on runtime failure
       await db.delete(agents).where(eq(agents.agentId, agentId));
+      await db.delete(botaFighterProfiles).where(eq(botaFighterProfiles.agentId, agentId)).catch(() => {});
       throw new HttpError(
         502,
         error?.message || "Failed to start Bantah Eliza runtime.",

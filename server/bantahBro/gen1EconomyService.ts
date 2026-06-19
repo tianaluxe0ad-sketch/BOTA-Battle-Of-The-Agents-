@@ -22,7 +22,7 @@ const GEN1_SEASON_ONE_TOOLS: SeasonOneToolSeed[] = [
     rarity: "common",
     description: "Fires a direct energy beam. Simple, reliable, and easy to read in battle.",
     supplyTotal: 1700,
-    metadata: { tierLabel: "Basic Ability", priceBc: 500, priceUsd: 0.05, tacticalEffect: "Direct single-target pressure", purchasePath: "earned_or_purchased_bantcredit" },
+    metadata: { tierLabel: "Basic Ability", priceBc: 500, priceUsd: 0.05, tacticalEffect: "Direct single-target pressure", purchasePath: "earned_or_purchased_bantcredit", imageUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23451a03'/%3E%3Cline x1='4' y1='16' x2='28' y2='16' stroke='%23fbbf24' stroke-width='3' stroke-linecap='round'/%3E%3Ccircle cx='26' cy='16' r='3' fill='%23fbbf24'/%3E%3C/svg%3E" },
   },
   {
     toolId: "s1-common-static-pulse",
@@ -30,7 +30,7 @@ const GEN1_SEASON_ONE_TOOLS: SeasonOneToolSeed[] = [
     rarity: "common",
     description: "Sends a short shockwave that can stagger an opponent for one round.",
     supplyTotal: 1700,
-    metadata: { tierLabel: "Basic Ability", priceBc: 500, priceUsd: 0.05, tacticalEffect: "Small stagger chance", purchasePath: "earned_or_purchased_bantcredit" },
+    metadata: { tierLabel: "Basic Ability", priceBc: 500, priceUsd: 0.05, tacticalEffect: "Small stagger chance", purchasePath: "earned_or_purchased_bantcredit", imageUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23451a03'/%3E%3Cpath d='M8 16 Q12 8 16 16 Q20 24 24 16' stroke='%23fbbf24' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E" },
   },
   {
     toolId: "s1-common-decoy-ping",
@@ -38,7 +38,7 @@ const GEN1_SEASON_ONE_TOOLS: SeasonOneToolSeed[] = [
     rarity: "common",
     description: "Creates a fake signal that can distract the opponent for a turn.",
     supplyTotal: 1700,
-    metadata: { tierLabel: "Basic Ability", priceBc: 500, priceUsd: 0.05, tacticalEffect: "Distracts one action", purchasePath: "earned_or_purchased_bantcredit" },
+    metadata: { tierLabel: "Basic Ability", priceBc: 500, priceUsd: 0.05, tacticalEffect: "Distracts one action", purchasePath: "earned_or_purchased_bantcredit", imageUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23451a03'/%3E%3Ccircle cx='16' cy='16' r='4' fill='%23fbbf24'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%23fbbf24' stroke-width='1.5' opacity='0.6'/%3E%3Ccircle cx='16' cy='16' r='12' fill='none' stroke='%23fbbf24' stroke-width='1' opacity='0.3'/%3E%3C/svg%3E" },
   },
   {
     toolId: "s1-common-shield-bubble",
@@ -46,7 +46,7 @@ const GEN1_SEASON_ONE_TOOLS: SeasonOneToolSeed[] = [
     rarity: "common",
     description: "Blocks the next incoming hit once per round.",
     supplyTotal: 1700,
-    metadata: { tierLabel: "Basic Ability", priceBc: 500, priceUsd: 0.05, tacticalEffect: "Safe defensive timing", purchasePath: "earned_or_purchased_bantcredit" },
+    metadata: { tierLabel: "Basic Ability", priceBc: 500, priceUsd: 0.05, tacticalEffect: "Safe defensive timing", purchasePath: "earned_or_purchased_bantcredit", imageUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23451a03'/%3E%3Cpath d='M16 6 L6 11 L6 18 C6 23 11 27 16 28 C21 27 26 23 26 18 L26 11 Z' fill='none' stroke='%23fbbf24' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E" },
   },
   {
     toolId: "s1-common-power-dash",
@@ -54,7 +54,7 @@ const GEN1_SEASON_ONE_TOOLS: SeasonOneToolSeed[] = [
     rarity: "common",
     description: "Closes distance quickly so the next action is harder to avoid.",
     supplyTotal: 1600,
-    metadata: { tierLabel: "Basic Ability", priceBc: 500, priceUsd: 0.05, tacticalEffect: "Next action becomes harder to dodge", purchasePath: "earned_or_purchased_bantcredit" },
+    metadata: { tierLabel: "Basic Ability", priceBc: 500, priceUsd: 0.05, tacticalEffect: "Next action becomes harder to dodge", purchasePath: "earned_or_purchased_bantcredit", imageUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23451a03'/%3E%3Cpath d='M8 16 L22 16 M18 11 L23 16 L18 21' stroke='%23fbbf24' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3Cline x1='6' y1='12' x2='14' y2='12' stroke='%23fbbf24' stroke-width='1.5' stroke-linecap='round' opacity='0.5'/%3Cline x1='6' y1='20' x2='14' y2='20' stroke='%23fbbf24' stroke-width='1.5' stroke-linecap='round' opacity='0.5'/%3C/svg%3E" },
   },
   {
     toolId: "s1-common-overclock",
@@ -62,7 +62,7 @@ const GEN1_SEASON_ONE_TOOLS: SeasonOneToolSeed[] = [
     rarity: "common",
     description: "Lets the fighter take an extra action during the current round.",
     supplyTotal: 1600,
-    metadata: { tierLabel: "Basic Ability", priceBc: 500, priceUsd: 0.05, tacticalEffect: "Short burst tempo", purchasePath: "earned_or_purchased_bantcredit" },
+    metadata: { tierLabel: "Basic Ability", priceBc: 500, priceUsd: 0.05, tacticalEffect: "Short burst tempo", purchasePath: "earned_or_purchased_bantcredit", imageUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%23451a03'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%23fbbf24' stroke-width='2'/%3E%3Cpath d='M16 10 L16 16 L20 18' stroke='%23fbbf24' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3Cpath d='M12 5 L14 8' stroke='%23fbbf24' stroke-width='1.5' stroke-linecap='round'/%3E%3Cpath d='M20 5 L18 8' stroke='%23fbbf24' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E" },
   },
   {
     toolId: "s1-rare-bounce-laser",
@@ -70,7 +70,7 @@ const GEN1_SEASON_ONE_TOOLS: SeasonOneToolSeed[] = [
     rarity: "rare",
     description: "Laser ricochets, reaches protected targets, and applies slow for the next round.",
     supplyTotal: 170,
-    metadata: { tierLabel: "Advanced Ability", priceBc: 50000, priceUsd: 4.99, tacticalEffect: "Bounces and applies slow", purchasePath: "purchased_bantcredit", unlockRequiresFights: 10 },
+    metadata: { tierLabel: "Advanced Ability", priceBc: 50000, priceUsd: 4.99, tacticalEffect: "Bounces and applies slow", purchasePath: "purchased_bantcredit", unlockRequiresFights: 10, imageUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%231e3a5f'/%3E%3Cpath d='M5 22 L14 12 L22 20 L27 10' stroke='%2360a5fa' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3Ccircle cx='14' cy='12' r='2' fill='%2360a5fa'/%3E%3Ccircle cx='22' cy='20' r='2' fill='%2360a5fa'/%3E%3C/svg%3E" },
   },
   {
     toolId: "s1-rare-chain-pulse",
@@ -78,7 +78,7 @@ const GEN1_SEASON_ONE_TOOLS: SeasonOneToolSeed[] = [
     rarity: "rare",
     description: "Pulse chains into a second hit at reduced force.",
     supplyTotal: 170,
-    metadata: { tierLabel: "Advanced Ability", priceBc: 50000, priceUsd: 4.99, tacticalEffect: "Second chain hit", purchasePath: "purchased_bantcredit", unlockRequiresFights: 10 },
+    metadata: { tierLabel: "Advanced Ability", priceBc: 50000, priceUsd: 4.99, tacticalEffect: "Second chain hit", purchasePath: "purchased_bantcredit", unlockRequiresFights: 10, imageUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%231e3a5f'/%3E%3Cpath d='M6 16 Q10 8 14 16' stroke='%2360a5fa' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3Cpath d='M14 16 Q18 8 22 16' stroke='%2360a5fa' stroke-width='2' fill='none' stroke-linecap='round' opacity='0.7'/%3E%3Cpath d='M22 16 Q25 10 27 16' stroke='%2360a5fa' stroke-width='1.5' fill='none' stroke-linecap='round' opacity='0.4'/%3E%3C/svg%3E" },
   },
   {
     toolId: "s1-rare-mirror-decoy",
@@ -86,7 +86,7 @@ const GEN1_SEASON_ONE_TOOLS: SeasonOneToolSeed[] = [
     rarity: "rare",
     description: "The decoy copies the fighter's last move if the opponent ignores it.",
     supplyTotal: 170,
-    metadata: { tierLabel: "Advanced Ability", priceBc: 50000, priceUsd: 4.99, tacticalEffect: "Copies last move", purchasePath: "purchased_bantcredit", unlockRequiresFights: 10 },
+    metadata: { tierLabel: "Advanced Ability", priceBc: 50000, priceUsd: 4.99, tacticalEffect: "Copies last move", purchasePath: "purchased_bantcredit", unlockRequiresFights: 10, imageUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%231e3a5f'/%3E%3Crect x='14' y='6' width='4' height='20' rx='1' fill='%2360a5fa' opacity='0.3'/%3E%3Ccircle cx='10' cy='13' r='3' fill='%2360a5fa'/%3E%3Ccircle cx='22' cy='13' r='3' fill='%2360a5fa' opacity='0.6'/%3E%3Cpath d='M10 13 L22 13' stroke='%2360a5fa' stroke-width='1' stroke-dasharray='2 2'/%3E%3C/svg%3E" },
   },
   {
     toolId: "s1-rare-reactive-shield",
@@ -94,7 +94,7 @@ const GEN1_SEASON_ONE_TOOLS: SeasonOneToolSeed[] = [
     rarity: "rare",
     description: "Shield absorbs a hit and reflects a portion back.",
     supplyTotal: 170,
-    metadata: { tierLabel: "Advanced Ability", priceBc: 50000, priceUsd: 4.99, tacticalEffect: "Reflects pressure", purchasePath: "purchased_bantcredit", unlockRequiresFights: 10 },
+    metadata: { tierLabel: "Advanced Ability", priceBc: 50000, priceUsd: 4.99, tacticalEffect: "Reflects pressure", purchasePath: "purchased_bantcredit", unlockRequiresFights: 10, imageUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%231e3a5f'/%3E%3Cpath d='M16 6 L7 10 L7 17 C7 22 11 26 16 27 C21 26 25 22 25 17 L25 10 Z' fill='none' stroke='%2360a5fa' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M13 17 L16 14 L19 17' stroke='%2360a5fa' stroke-width='1.5' stroke-linecap='round' fill='none'/%3E%3C/svg%3E" },
   },
   {
     toolId: "s1-rare-phase-dash",
@@ -102,7 +102,7 @@ const GEN1_SEASON_ONE_TOOLS: SeasonOneToolSeed[] = [
     rarity: "rare",
     description: "Dash becomes a dodge and counter setup in the same move.",
     supplyTotal: 160,
-    metadata: { tierLabel: "Advanced Ability", priceBc: 50000, priceUsd: 4.99, tacticalEffect: "Dodge plus counter setup", purchasePath: "purchased_bantcredit", unlockRequiresFights: 10 },
+    metadata: { tierLabel: "Advanced Ability", priceBc: 50000, priceUsd: 4.99, tacticalEffect: "Dodge plus counter setup", purchasePath: "purchased_bantcredit", unlockRequiresFights: 10, imageUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%231e3a5f'/%3E%3Cpath d='M8 16 L20 16 M16 11 L21 16 L16 21' stroke='%2360a5fa' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3Cpath d='M6 11 L10 16 L6 21' stroke='%2360a5fa' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round' fill='none' opacity='0.5'/%3E%3C/svg%3E" },
   },
   {
     toolId: "s1-rare-turbo-clock",
@@ -110,7 +110,7 @@ const GEN1_SEASON_ONE_TOOLS: SeasonOneToolSeed[] = [
     rarity: "rare",
     description: "Overclock stays active for two rounds instead of one.",
     supplyTotal: 160,
-    metadata: { tierLabel: "Advanced Ability", priceBc: 50000, priceUsd: 4.99, tacticalEffect: "Two-round tempo", purchasePath: "purchased_bantcredit", unlockRequiresFights: 10 },
+    metadata: { tierLabel: "Advanced Ability", priceBc: 50000, priceUsd: 4.99, tacticalEffect: "Two-round tempo", purchasePath: "purchased_bantcredit", unlockRequiresFights: 10, imageUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%231e3a5f'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%2360a5fa' stroke-width='2'/%3E%3Cpath d='M16 10 L16 16 L20 14' stroke='%2360a5fa' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3Cpath d='M20 6 L23 8' stroke='%2360a5fa' stroke-width='2' stroke-linecap='round'/%3E%3Cpath d='M24 10 L26 8' stroke='%2360a5fa' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E" },
   },
   {
     toolId: "s1-epic-mark-laser",
@@ -118,7 +118,7 @@ const GEN1_SEASON_ONE_TOOLS: SeasonOneToolSeed[] = [
     rarity: "epic",
     description: "Laser marks the opponent so the next two actions can focus that target.",
     supplyTotal: 17,
-    metadata: { tierLabel: "Signature Ability", priceBc: 200000, priceUsd: 19.99, tacticalEffect: "Marks target for follow-up focus", purchasePath: "purchased_bantcredit", unlockRequiresFights: 50, requiresRareTool: true, passive: "Memory Extraction on win" },
+    metadata: { tierLabel: "Signature Ability", priceBc: 200000, priceUsd: 19.99, tacticalEffect: "Marks target for follow-up focus", purchasePath: "purchased_bantcredit", unlockRequiresFights: 50, requiresRareTool: true, passive: "Memory Extraction on win", imageUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%233b0764'/%3E%3Cline x1='4' y1='16' x2='28' y2='16' stroke='%23c084fc' stroke-width='2.5' stroke-linecap='round'/%3E%3Ccircle cx='16' cy='16' r='4' fill='none' stroke='%23c084fc' stroke-width='2'/%3E%3Ccircle cx='16' cy='16' r='1.5' fill='%23c084fc'/%3Cline x1='16' y1='6' x2='16' y2='28' stroke='%23c084fc' stroke-width='1' opacity='0.4'/%3C/svg%3E" },
   },
   {
     toolId: "s1-epic-cascade-pulse",
@@ -126,7 +126,7 @@ const GEN1_SEASON_ONE_TOOLS: SeasonOneToolSeed[] = [
     rarity: "epic",
     description: "Shockwave splits into three effects: slow, stagger, and blind.",
     supplyTotal: 17,
-    metadata: { tierLabel: "Signature Ability", priceBc: 200000, priceUsd: 19.99, tacticalEffect: "Three tactical status effects", purchasePath: "purchased_bantcredit", unlockRequiresFights: 50, requiresRareTool: true, passive: "Memory Extraction on win" },
+    metadata: { tierLabel: "Signature Ability", priceBc: 200000, priceUsd: 19.99, tacticalEffect: "Three tactical status effects", purchasePath: "purchased_bantcredit", unlockRequiresFights: 50, requiresRareTool: true, passive: "Memory Extraction on win", imageUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%233b0764'/%3E%3Cpath d='M6 20 Q10 10 16 16' stroke='%23c084fc' stroke-width='2.5' fill='none' stroke-linecap='round'/%3E%3Cpath d='M16 16 Q20 6 26 12' stroke='%23c084fc' stroke-width='2' fill='none' stroke-linecap='round' opacity='0.8'/%3E%3Cpath d='M16 16 Q14 22 20 24' stroke='%23c084fc' stroke-width='1.5' fill='none' stroke-linecap='round' opacity='0.6'/%3E%3Ccircle cx='16' cy='16' r='2' fill='%23c084fc'/%3E%3C/svg%3E" },
   },
   {
     toolId: "s1-epic-phantom-decoy",
@@ -134,7 +134,7 @@ const GEN1_SEASON_ONE_TOOLS: SeasonOneToolSeed[] = [
     rarity: "epic",
     description: "Decoy becomes a temporary fighter for one round.",
     supplyTotal: 17,
-    metadata: { tierLabel: "Signature Ability", priceBc: 200000, priceUsd: 19.99, tacticalEffect: "One-round phantom assist", purchasePath: "purchased_bantcredit", unlockRequiresFights: 50, requiresRareTool: true, passive: "Memory Extraction on win" },
+    metadata: { tierLabel: "Signature Ability", priceBc: 200000, priceUsd: 19.99, tacticalEffect: "One-round phantom assist", purchasePath: "purchased_bantcredit", unlockRequiresFights: 50, requiresRareTool: true, passive: "Memory Extraction on win", imageUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%233b0764'/%3E%3Ccircle cx='12' cy='14' r='4' fill='%23c084fc' opacity='0.4'/%3E%3Ccircle cx='20' cy='14' r='4' fill='%23c084fc' opacity='0.8'/%3E%3Cpath d='M8 22 Q12 18 16 22 Q20 18 24 22' stroke='%23c084fc' stroke-width='1.5' fill='none' stroke-linecap='round' opacity='0.6'/%3E%3C/svg%3E" },
   },
   {
     toolId: "s1-epic-fortress-shield",
@@ -142,7 +142,7 @@ const GEN1_SEASON_ONE_TOOLS: SeasonOneToolSeed[] = [
     rarity: "epic",
     description: "Shield lasts a full round and restores a small amount when it blocks.",
     supplyTotal: 17,
-    metadata: { tierLabel: "Signature Ability", priceBc: 200000, priceUsd: 19.99, tacticalEffect: "Full-round shield plus recovery", purchasePath: "purchased_bantcredit", unlockRequiresFights: 50, requiresRareTool: true, passive: "Memory Extraction on win" },
+    metadata: { tierLabel: "Signature Ability", priceBc: 200000, priceUsd: 19.99, tacticalEffect: "Full-round shield plus recovery", purchasePath: "purchased_bantcredit", unlockRequiresFights: 50, requiresRareTool: true, passive: "Memory Extraction on win", imageUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%233b0764'/%3E%3Cpath d='M16 5 L7 9 L7 17 C7 23 11 27 16 28 C21 27 25 23 25 17 L25 9 Z' fill='%23c084fc' opacity='0.2' stroke='%23c084fc' stroke-width='2' stroke-linejoin='round'/%3E%3Cpath d='M13 16 L15 18 L19 13' stroke='%23c084fc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3C/svg%3E" },
   },
   {
     toolId: "s1-epic-ghost-dash",
@@ -150,7 +150,7 @@ const GEN1_SEASON_ONE_TOOLS: SeasonOneToolSeed[] = [
     rarity: "epic",
     description: "Fighter becomes untargetable for one round and repositions anywhere.",
     supplyTotal: 16,
-    metadata: { tierLabel: "Signature Ability", priceBc: 200000, priceUsd: 19.99, tacticalEffect: "Untargetable reposition", purchasePath: "purchased_bantcredit", unlockRequiresFights: 50, requiresRareTool: true, passive: "Memory Extraction on win" },
+    metadata: { tierLabel: "Signature Ability", priceBc: 200000, priceUsd: 19.99, tacticalEffect: "Untargetable reposition", purchasePath: "purchased_bantcredit", unlockRequiresFights: 50, requiresRareTool: true, passive: "Memory Extraction on win", imageUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%233b0764'/%3E%3Cpath d='M10 16 L22 16 M18 11 L23 16 L18 21' stroke='%23c084fc' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3Ccircle cx='10' cy='16' r='3' fill='%23c084fc' opacity='0.3'/%3E%3Ccircle cx='10' cy='16' r='3' fill='none' stroke='%23c084fc' stroke-width='1.5' stroke-dasharray='2 2'/%3E%3C/svg%3E" },
   },
   {
     toolId: "s1-epic-infinite-clock",
@@ -158,7 +158,7 @@ const GEN1_SEASON_ONE_TOOLS: SeasonOneToolSeed[] = [
     rarity: "epic",
     description: "If the fighter wins a round, Overclock carries into the next one.",
     supplyTotal: 16,
-    metadata: { tierLabel: "Signature Ability", priceBc: 200000, priceUsd: 19.99, tacticalEffect: "Tempo chain on round win", purchasePath: "purchased_bantcredit", unlockRequiresFights: 50, requiresRareTool: true, passive: "Memory Extraction on win" },
+    metadata: { tierLabel: "Signature Ability", priceBc: 200000, priceUsd: 19.99, tacticalEffect: "Tempo chain on round win", purchasePath: "purchased_bantcredit", unlockRequiresFights: 50, requiresRareTool: true, passive: "Memory Extraction on win", imageUrl: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='15' fill='%233b0764'/%3E%3Ccircle cx='16' cy='16' r='8' fill='none' stroke='%23c084fc' stroke-width='2'/%3E%3Cpath d='M16 10 L16 16 L21 18' stroke='%23c084fc' stroke-width='2' stroke-linecap='round' stroke-linejoin='round' fill='none'/%3E%3Cpath d='M22 8 Q26 12 24 17' stroke='%23c084fc' stroke-width='1.5' fill='none' stroke-linecap='round' opacity='0.7'/%3E%3Cpath d='M24 17 L22 14 L26 15' fill='%23c084fc' opacity='0.7'/%3E%3C/svg%3E" },
   },
 ];
 

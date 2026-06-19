@@ -1,9 +1,8 @@
 'use client'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useRef, useMemo, useState } from 'react'
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query'
 import {
-  Bot,
   BrainCircuit,
   CheckCircle2,
   Coins,
@@ -402,6 +401,22 @@ export default function ImportPage() {
     }
   }, [createType, assets, selectedCreateAssetId])
 
+  const confettiRef = useRef<(() => void) | null>(null)
+
+  useEffect(() => {
+    let cancelled = false
+    import('canvas-confetti').then((mod) => {
+      if (cancelled) return
+      const confetti = mod.default
+      confettiRef.current = () => {
+        confetti({ particleCount: 120, spread: 80, origin: { y: 0.55 }, colors: ['#7c3aed', '#a78bfa', '#facc15', '#34d399', '#f472b6'] })
+        setTimeout(() => confetti({ particleCount: 60, spread: 60, origin: { y: 0.5 }, angle: 60 }), 200)
+        setTimeout(() => confetti({ particleCount: 60, spread: 60, origin: { y: 0.5 }, angle: 120 }), 200)
+      }
+    }).catch(() => {})
+    return () => { cancelled = true }
+  }, [])
+
   const createMutation = useMutation({
     mutationFn: async () => {
       if (!isAuthenticated) throw new Error('Sign in to create a fighter.')
@@ -445,6 +460,8 @@ export default function ImportPage() {
       queryClient.invalidateQueries({ queryKey: ['/api/bantahbro/profile'] })
       queryClient.invalidateQueries({ queryKey: ['/api/bantahbro/agents-directory'] })
       queryClient.invalidateQueries({ queryKey: ['/api/bantahbro/profile'] })
+      // Fire confetti on successful deploy
+      setTimeout(() => { confettiRef.current?.() }, 80)
       toast({
         title: 'Fighter deployed',
         description: `${result.profile.displayName} entered your next Arena queue.`,
@@ -1129,63 +1146,71 @@ export default function ImportPage() {
       </div>
 
       <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
-        <DialogContent className="max-w-sm overflow-hidden p-0 border-border/50 bg-background/95 backdrop-blur-xl shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-          <div className="relative p-6">
-            <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-50" />
-            
+        <DialogContent
+          className="max-w-xs overflow-hidden p-0 border-border/60 bg-background shadow-none"
+          style={{ fontFamily: "'Poppins Rounded', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif" }}
+        >
+          <div className="relative p-5">
             <DialogHeader className="relative">
-              <DialogTitle className="flex items-center gap-2 text-xl font-black tracking-tight text-foreground">
+              <DialogTitle className="flex items-center gap-2.5 text-base font-black tracking-tight text-foreground">
                 {createStatus === 'pending' ? (
                   <>
-                    <Bot size={24} className="text-primary animate-pulse" />
+                    <img
+                      src="/2dgame/image/mascots/actions/bantah-punch-avatar-portrait.png"
+                      alt="BOTA"
+                      className="size-6 rounded-full object-cover animate-pulse"
+                    />
                     Deploying Fighter...
                   </>
                 ) : createStatus === 'success' ? (
                   <>
-                    <CheckCircle2 size={24} className="text-green-500 animate-[bounce_0.5s_ease-out]" />
+                    <CheckCircle2 size={22} className="text-green-500 animate-[bounce_0.5s_ease-out]" />
                     Deployment Success
                   </>
                 ) : (
                   <>
-                    <Swords size={24} className="text-primary" />
+                    <Swords size={22} className="text-primary" />
                     Create Fighter
                   </>
                 )}
               </DialogTitle>
-              <DialogDescription className="text-sm text-muted-foreground pt-1">
+              <DialogDescription className="text-xs text-muted-foreground pt-1">
                 {createStatus === 'pending'
                   ? 'Generating persona, compiling loadout, and registering identity for the Arena...'
                   : createStatus === 'success'
-                  ? 'Your fighter has successfully been registered and is queued for the next Arena round.'
+                  ? 'Your fighter has been registered and is queued for the next Arena round.'
                   : 'Review your fighter deployment status.'}
               </DialogDescription>
             </DialogHeader>
 
-            <div className="relative mt-6 space-y-4">
+            <div className="relative mt-5 space-y-3">
               {createStatus === 'pending' ? (
-                <div className="flex flex-col items-center justify-center py-6">
-                  <div className="relative flex items-center justify-center size-20">
+                <div className="flex flex-col items-center justify-center py-5">
+                  <div className="relative flex items-center justify-center size-16">
                     <div className="absolute inset-0 rounded-full border-4 border-primary/20" />
                     <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin" />
-                    <Bot size={32} className="text-primary" />
+                    <img
+                      src="/2dgame/image/mascots/actions/bantah-punch-avatar-portrait.png"
+                      alt="BOTA"
+                      className="size-8 rounded-full object-cover"
+                    />
                   </div>
-                  <div className="mt-4 text-xs font-bold uppercase tracking-widest text-primary animate-pulse">
-                    Initializing Core...
+                  <div className="mt-3 text-[10px] font-black uppercase tracking-widest text-primary animate-pulse">
+                    Preparing your fighter...
                   </div>
                 </div>
               ) : createStatus === 'success' && importedProfile ? (
-                <div className="group relative overflow-hidden rounded-xl border border-primary/30 bg-card p-1 shadow-inner transition-all hover:border-primary/60 hover:shadow-[0_0_20px_rgba(var(--primary),0.15)]">
-                  <div className="absolute inset-0 bg-gradient-to-br from-primary/10 via-transparent to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
-                  <div className="relative flex items-center gap-4 rounded-lg bg-background p-3">
+                <div className="rounded-lg border border-primary/30 bg-card p-3">
+                  <div className="flex items-center gap-3">
                     <img 
                       src={importedProfile.avatarUrl || botaCharacterAvatar(importedProfile.id, importedProfile.origin || 'manual')} 
                       alt="Fighter Avatar" 
-                      className="size-14 rounded-full border-2 border-primary/50 object-cover shadow-md"
+                      className="size-12 rounded-full border-2 border-primary/50 object-cover"
                     />
                     <div>
-                      <div className="text-lg font-black tracking-tight text-foreground">{importedProfile.displayName}</div>
-                      <div className="mt-0.5 flex items-center gap-1.5 text-xs font-bold text-muted-foreground">
-                        <span className="flex size-2 rounded-full bg-green-500 animate-pulse" />
+                      <div className="text-sm font-black tracking-tight text-foreground">{importedProfile.displayName}</div>
+                      <div className="mt-0.5 flex items-center gap-1.5 text-[11px] font-bold text-muted-foreground">
+                        <span className="flex size-1.5 rounded-full bg-green-500 animate-pulse" />
                         Queued for Arena
                       </div>
                     </div>
@@ -1194,13 +1219,13 @@ export default function ImportPage() {
               ) : null}
             </div>
 
-            <DialogFooter className="relative mt-6 flex flex-col gap-3 sm:flex-row sm:justify-end">
+            <div className="relative mt-5 flex flex-col gap-2 sm:flex-row sm:justify-end">
               {createStatus !== 'pending' && (
                 <Button 
                   type="button" 
                   variant="outline" 
                   onClick={() => setIsCreateDialogOpen(false)} 
-                  className="w-full sm:w-auto font-bold border-border/50 hover:bg-muted/50"
+                  className="w-full sm:w-auto text-xs font-black border-border/50 hover:bg-muted/50"
                 >
                   {createStatus === 'success' ? 'View Queue' : 'Close'}
                 </Button>
@@ -1208,13 +1233,13 @@ export default function ImportPage() {
               {createStatus === 'success' && importedProfile ? (
                 <a
                   href={botaAppHref('/bota?section=battles')}
-                  className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-sm font-black text-white shadow-[0_0_15px_rgba(var(--primary),0.4)] transition-all hover:bg-primary/90 hover:shadow-[0_0_25px_rgba(var(--primary),0.6)] sm:w-auto hover:scale-105 active:scale-95"
+                  className="inline-flex w-full items-center justify-center gap-2 rounded-md bg-primary px-4 py-2 text-xs font-black text-white transition-all hover:bg-primary/90 sm:w-auto hover:scale-105 active:scale-95"
                 >
-                  <Gamepad2 size={16} />
+                  <Gamepad2 size={14} />
                   Enter Arena
                 </a>
               ) : null}
-            </DialogFooter>
+            </div>
           </div>
         </DialogContent>
       </Dialog>

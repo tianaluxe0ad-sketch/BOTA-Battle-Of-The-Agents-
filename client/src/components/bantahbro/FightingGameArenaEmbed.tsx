@@ -184,6 +184,67 @@ function toNonNegativeInteger(value: unknown) {
   return Math.max(0, Math.round(numeric));
 }
 
+const RARITY_COLORS: Record<string, string> = {
+  epic: 'border-purple-400/70 bg-purple-900/40 text-purple-300',
+  rare: 'border-blue-400/70 bg-blue-900/40 text-blue-300',
+  common: 'border-amber-400/60 bg-amber-900/30 text-amber-300',
+};
+
+const SLOT_COUNT = 4;
+
+type LoadoutTool = { id: string; name: string; imageUrl: string; type: string; rarity?: string };
+
+function LoadoutSlots({
+  tools,
+  side,
+}: {
+  tools: LoadoutTool[];
+  side: 'left' | 'right';
+}) {
+  const slots: Array<LoadoutTool | null> = [
+    ...tools.slice(0, SLOT_COUNT),
+    ...Array(Math.max(0, SLOT_COUNT - tools.length)).fill(null),
+  ];
+
+  return (
+    <>
+      {slots.map((tool, idx) => {
+        if (tool) {
+          return <ToolBadge key={`${side}-tool-${idx}`} tool={tool} side={side} idx={idx} />;
+        }
+        // Depleted / empty slot — slow dim pulse
+        return (
+          <div
+            key={`${side}-empty-${idx}`}
+            title="No tool equipped — get one in the Marketplace"
+            className="flex h-8 w-8 md:h-11 md:w-11 items-center justify-center rounded-lg border border-white/8 bg-white/4 shadow-[0_0_8px_rgba(0,0,0,0.4)] backdrop-blur-sm"
+            style={{ animation: 'bota-dim-pulse 3s ease-in-out infinite', animationDelay: `${idx * 0.7}s` }}
+          >
+            {/* cracked shield icon rendered as inline SVG so no asset dependency */}
+            <svg viewBox="0 0 20 20" className="h-5 w-5 md:h-6 md:w-6" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path
+                d="M10 2L3 5v5c0 4 3.5 7 7 8 3.5-1 7-4 7-8V5L10 2z"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinejoin="round"
+                className="text-white/30"
+              />
+              <path
+                d="M9 7l1 3-2 2 3-1 1 3"
+                stroke="currentColor"
+                strokeWidth="1.2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="text-white/20"
+              />
+            </svg>
+          </div>
+        );
+      })}
+    </>
+  );
+}
+
 function formatArenaCompactNumber(value: unknown) {
   const numeric = toNonNegativeInteger(value);
   if (numeric >= 1_000_000) return `${(numeric / 1_000_000).toFixed(numeric >= 10_000_000 ? 0 : 1)}M`;
@@ -307,7 +368,7 @@ export function FightingGameArenaEmbed({
     cue: ArenaGuiCue | null;
     watchReward?: ArenaWatchRewardPayload | null;
   } | null>(null);
-  const showOverlay = battleStatus !== 'live';
+  const showOverlay = battleStatus === 'queued';
   const overlayCopy = getOverlayCopy(battleStatus);
   const remainingSeconds = startsAtMs ? Math.max(0, (startsAtMs - now) / 1000) : 0;
   const syncedBattle = useMemo(() => {
@@ -578,6 +639,18 @@ export function FightingGameArenaEmbed({
         flush ? 'rounded-none border-x-0 border-t-0' : compact ? 'mx-1 mt-1 rounded-xl' : 'rounded-2xl'
       }`}
     >
+      {/* Keyframes for loadout tool animations — injected once per arena mount */}
+      <style>{`
+        @keyframes bota-ring-burst {
+          0%   { opacity: 1; transform: scale(1); }
+          60%  { opacity: 0.4; transform: scale(1.55); }
+          100% { opacity: 0; transform: scale(1.9); }
+        }
+        @keyframes bota-dim-pulse {
+          0%, 100% { opacity: 0.28; }
+          50%       { opacity: 0.46; }
+        }
+      `}</style>
       <div className="aspect-[16/9] w-full bg-background">
         <div
           ref={arenaRootRef}
@@ -681,18 +754,10 @@ export function FightingGameArenaEmbed({
           </div>
           <div ref={dialogRef} className="dialog" />
           <div className="absolute left-2 top-1/2 z-40 flex -translate-y-1/2 flex-col gap-2">
-            {leftSide?.loadoutTools?.slice(0, 4).map((tool, idx) => (
-              <div key={`l-tool-${idx}`} className="flex h-8 w-8 md:h-11 md:w-11 items-center justify-center rounded-lg border border-border/50 bg-background/50 shadow-[0_0_12px_rgba(0,0,0,0.6)] backdrop-blur-sm transition-transform hover:scale-110">
-                <img src={tool.imageUrl} alt={tool.name} title={tool.name} className="h-4/5 w-4/5 object-contain drop-shadow-md" />
-              </div>
-            ))}
+            <LoadoutSlots tools={(leftSide?.loadoutTools || []) as LoadoutTool[]} side="left" />
           </div>
           <div className="absolute right-2 top-1/2 z-40 flex -translate-y-1/2 flex-col gap-2">
-            {rightSide?.loadoutTools?.slice(0, 4).map((tool, idx) => (
-              <div key={`r-tool-${idx}`} className="flex h-8 w-8 md:h-11 md:w-11 items-center justify-center rounded-lg border border-border/50 bg-background/50 shadow-[0_0_12px_rgba(0,0,0,0.6)] backdrop-blur-sm transition-transform hover:scale-110">
-                <img src={tool.imageUrl} alt={tool.name} title={tool.name} className="h-4/5 w-4/5 object-contain drop-shadow-md" />
-              </div>
-            ))}
+            <LoadoutSlots tools={(rightSide?.loadoutTools || []) as LoadoutTool[]} side="right" />
           </div>
           <canvas ref={canvasRef} />
         </div>

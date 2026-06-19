@@ -287,51 +287,42 @@ export default function CommunitiesPage({ embedded = false }: { embedded?: boole
           ))}
         </section>
 
-        <section className="grid grid-cols-4 gap-1.5 md:gap-2">
-          <div className="rounded-lg bg-card p-2 text-center md:p-3 md:text-left">
-            <div className="flex items-center justify-center gap-1 text-[8px] font-black uppercase text-muted-foreground md:justify-start md:gap-2 md:text-[10px]">
-              <Users size={11} className="text-primary md:size-[14px]" />
-              Agents
+        <section className="grid grid-cols-4 lg:grid-cols-7 gap-1 md:gap-1.5">
+          <div className="rounded-md bg-card p-1.5 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-1 text-[9px] font-black uppercase text-muted-foreground">
+              <Users size={12} className="text-primary" /> Agents
             </div>
-            <div className="mt-1 text-sm font-black md:mt-2 md:text-xl">{formatCompact(activeCommunity.agents)}</div>
+            <div className="mt-0.5 text-sm md:text-base font-black">{formatCompact(activeCommunity.agents)}</div>
           </div>
-          <div className="rounded-lg bg-card p-2 text-center md:p-3 md:text-left">
-            <div className="flex items-center justify-center gap-1 text-[8px] font-black uppercase text-muted-foreground md:justify-start md:gap-2 md:text-[10px]">
-              <Trophy size={11} className="text-primary md:size-[14px]" />
-              Wins
+          <div className="rounded-md bg-card p-1.5 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-1 text-[9px] font-black uppercase text-muted-foreground">
+              <Trophy size={12} className="text-primary" /> Wins
             </div>
-            <div className="mt-1 text-sm font-black md:mt-2 md:text-xl">{formatCompact(activeCommunity.wins)}</div>
+            <div className="mt-0.5 text-sm md:text-base font-black">{formatCompact(activeCommunity.wins)}</div>
           </div>
-          <div className="rounded-lg bg-card p-2 text-center md:p-3 md:text-left">
-            <div className="flex items-center justify-center gap-1 text-[8px] font-black uppercase text-muted-foreground md:justify-start md:gap-2 md:text-[10px]">
-              <Swords size={11} className="text-primary md:size-[14px]" />
-              Losses
+          <div className="rounded-md bg-card p-1.5 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-1 text-[9px] font-black uppercase text-muted-foreground">
+              <Swords size={12} className="text-primary" /> Losses
             </div>
-            <div className="mt-1 text-sm font-black md:mt-2 md:text-xl">{formatCompact(activeCommunity.losses)}</div>
+            <div className="mt-0.5 text-sm md:text-base font-black">{formatCompact(activeCommunity.losses)}</div>
           </div>
-          <div className="rounded-lg bg-card p-2 text-center md:p-3 md:text-left">
-            <div className="flex items-center justify-center gap-1 text-[8px] font-black uppercase text-muted-foreground md:justify-start md:gap-2 md:text-[10px]">
-              <Crown size={11} className="text-primary md:size-[14px]" />
-              BantCredit
+          <div className="rounded-md bg-card p-1.5 text-center md:text-left">
+            <div className="flex items-center justify-center md:justify-start gap-1 text-[9px] font-black uppercase text-muted-foreground">
+              <Crown size={12} className="text-primary" /> BantCredit
             </div>
-            <div className="mt-1 text-[13px] font-black leading-tight md:mt-2 md:text-xl">{formatCompact(activeCommunity.bantCredits)} BC</div>
+            <div className="mt-0.5 text-sm md:text-base font-black">{formatCompact(activeCommunity.bantCredits)}</div>
           </div>
-        </section>
-
-        <section className="grid grid-cols-3 gap-1.5 md:gap-2">
-          <div className="rounded-lg bg-card p-2 text-center md:p-3 md:text-left">
-            <div className="text-[8px] font-black uppercase text-muted-foreground md:text-[10px]">Recorded</div>
-            <div className="mt-1 text-sm font-black md:mt-2 md:text-xl">{formatCompact(activeCommunity.onchain.battles)}</div>
+          <div className="rounded-md bg-card p-1.5 text-center md:text-left">
+            <div className="text-[9px] font-black uppercase text-muted-foreground">Recorded</div>
+            <div className="mt-0.5 text-sm md:text-base font-black">{formatCompact(activeCommunity.onchain.battles)}</div>
           </div>
-          <div className="rounded-lg bg-card p-2 text-center md:p-3 md:text-left">
-            <div className="text-[8px] font-black uppercase text-muted-foreground md:text-[10px]">Events</div>
-            <div className="mt-1 text-sm font-black md:mt-2 md:text-xl">{formatCompact(activeCommunity.onchain.events)}</div>
+          <div className="rounded-md bg-card p-1.5 text-center md:text-left">
+            <div className="text-[9px] font-black uppercase text-muted-foreground">Events</div>
+            <div className="mt-0.5 text-sm md:text-base font-black">{formatCompact(activeCommunity.onchain.events)}</div>
           </div>
-          <div className="rounded-lg bg-card p-2 text-center md:p-3 md:text-left">
-            <div className="text-[8px] font-black uppercase text-muted-foreground md:text-[10px]">Onchain BC</div>
-            <div className="mt-1 text-[13px] font-black leading-tight md:mt-2 md:text-xl">
-              {formatCompact(activeCommunity.onchain.totalBantCredits)} BC
-            </div>
+          <div className="rounded-md bg-card p-1.5 text-center md:text-left">
+            <div className="text-[9px] font-black uppercase text-muted-foreground">Onchain BC</div>
+            <div className="mt-0.5 text-sm md:text-base font-black">{formatCompact(activeCommunity.onchain.totalBantCredits)}</div>
           </div>
         </section>
 

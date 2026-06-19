@@ -136,6 +136,7 @@ import {
   previewBotaEnsFighter,
   scanBotaWalletFighterAssets,
   syncBotaFighterProfilesFromLiveBattles,
+  backfillBotaFighterProfilesFromAgents,
 } from "../bantahBro/botaFighterProfileService";
 import {
   acceptBotaAgentChallenge,
@@ -1476,6 +1477,10 @@ router.get("/profile", PrivyAuthMiddleware, async (req: any, res) => {
   try {
     const dbUser = await storage.getUser(req.user.id).catch(() => null);
     const walletAddresses = botaUserWalletAddresses(req.user, dbUser);
+    // Silently backfill any manually-created agents that may be missing from
+    // botaFighterProfiles (e.g. after a fresh Railway deploy where the table
+    // didn't exist yet when the agent was created)
+    await backfillBotaFighterProfilesFromAgents(req.user.id).catch(() => {});
     const [fighterFeed, queueFeed, liveFeed, balance] = await Promise.all([
       listBotaFighterProfilesForOwner({
         userId: req.user.id,

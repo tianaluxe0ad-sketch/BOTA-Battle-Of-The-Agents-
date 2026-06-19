@@ -1,7 +1,8 @@
-import { asc, desc, eq, or, sql, type SQL } from "drizzle-orm";
+import { asc, desc, eq, inArray, or, sql, type SQL } from "drizzle-orm";
 import { createPublicClient, formatUnits, http, isAddress, parseAbi, type Address } from "viem";
 import { base, mainnet } from "viem/chains";
 import {
+  agents,
   botaArenaBattleRecords,
   botaFighterProfiles,
   type BotaArenaBattleRecordRow,
@@ -1840,12 +1841,7 @@ export async function scanBotaWalletFighterAssets(walletAddress?: string | null)
         source: "Virtuals Protocol",
         origin: "virtuals",
       }),
-      scanRegistryAgents({
-        wallet,
-        endpoint: BANKR_AGENT_REGISTRY_URL,
-        source: "Bankr",
-        origin: "bankr",
-      }),
+      Promise.resolve([]),
       scanRegistryAgents({
         wallet,
         endpoint: AGENTKIT_AGENT_REGISTRY_URL,
@@ -2147,7 +2143,7 @@ function normalizeProfileRecord(row: BotaFighterProfileRecord): BotaFighterProfi
         wins: row.wins,
         losses: row.losses,
         currentStreak: row.currentStreak,
-        bantCreditsEarned: 0,
+        bantCreditsEarned: toNumber(row.bantCreditsEarned),
         fameScore: toNumber(row.fameScore),
         titles: Array.isArray(row.titles) ? row.titles : [],
         tags: Array.isArray(row.tags) ? row.tags : [],
@@ -2166,7 +2162,7 @@ function normalizeProfileRecord(row: BotaFighterProfileRecord): BotaFighterProfi
     wins: row.wins,
     losses: row.losses,
     currentStreak: row.currentStreak,
-    bantCreditsEarned: 0,
+    bantCreditsEarned: toNumber(row.bantCreditsEarned),
     fameScore: toNumber(row.fameScore),
     titles: Array.isArray(row.titles) ? row.titles : [],
     tags: Array.isArray(row.tags) ? row.tags : [],
@@ -2214,7 +2210,7 @@ function normalizeProfileRecord(row: BotaFighterProfileRecord): BotaFighterProfi
     fameScore: toNumber(row.fameScore),
     watchers: row.watchers,
     challengeVolume: row.challengeVolume,
-    bantCreditsEarned: 0,
+    bantCreditsEarned: toNumber(row.bantCreditsEarned),
     liveSpectators: 0,
     titles: Array.isArray(row.titles) ? row.titles : [],
     tags: Array.isArray(row.tags) ? row.tags : [],
@@ -3474,4 +3470,55 @@ export async function applyBotaArenaBattleResultToFighterProfiles(input: {
         reason: "arena_result",
       })),
   };
+}
+
+/**
+ * Backfill: ensure every agent in the `agents` table (owned by this user)
+ * has a corresponding row in `botaFighterProfiles`. This repairs the gap
+ * that occurs on fresh Railway deploys when the table didn't exist at
+ * agent-creation time and the insert silently did nothing.
+ */
+export async function backfillBotaFighterProfilesFromAgents(ownerId: string): Promise<void> {
+  if (!ownerId) return;
+  try {
+    await ensureBotaFighterProfilesTable();
+    const ownedAgents = await db
+      .select()
+      .from(agents)
+      .where(eq(agents.ownerId, ownerId))
+      .limit(200);
+    if (!ownedAgents.length) return;
+
+    const agentIds = ownedAgents.map((a) => a.agentId);
+    const existingProfiles = await db
+      .select({ agentId: botaFighterProfiles.agentId })
+      .from(botaFighterProfiles)
+      .where(inArray(botaFighterProfiles.agentId, agentIds));
+    const existingSet = new Set(existingProfiles.map((p) => p.agentId));
+
+    const missing = ownedAgents.filter((a) => !existingSet.has(a.agentId));
+    if (!missing.length) return;
+
+    const now = new Date();
+    for (const agent of missing) {
+      await db.insert(botaFighterProfiles).values({
+        agentId: agent.agentId,
+        displayName: agent.agentName,
+        origin: "bota",
+        originId: null,
+        agentClass: "striker",
+        archetype: "signal_striker",
+        league: "Open League",
+        fameScore: 50,
+        avatarUrl: agent.avatarUrl ?? null,
+        walletAddress: agent.walletAddress ?? null,
+        metadata: { ownerUserId: ownerId },
+        lastSeenAt: now,
+        updatedAt: now,
+      }).onConflictDoNothing();
+    }
+  } catch (error) {
+    // Non-fatal — log and continue so the profile page still loads
+    console.warn("[botaFighterProfileService] backfill from agents failed:", error);
+  }
 }
